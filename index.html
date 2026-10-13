@@ -1,0 +1,3228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Grocery AI - Universal Shopping</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- 110 Grocery Products Database (12 Sections) -->
+  <script src="products.js"></script>
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #f8fafc;
+    }
+    /* Hide scrollbars for clean app feel */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-gray-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Responsive App Container: fills full screen cleanly on mobile, and scales with max-w-6xl on tablets, laptops, and desktops -->
+  <div class="w-full max-w-6xl mx-auto min-h-screen bg-white shadow-xl flex flex-col relative md:my-0 lg:my-3 lg:rounded-3xl lg:border lg:border-gray-200 overflow-hidden">
+    
+    <!-- Top Header & Desktop/Tablet Top Navigation -->
+    <header class="bg-emerald-600 text-white px-4 sm:px-6 lg:px-8 pt-4 pb-3 shadow-md z-30 sticky top-0">
+      <div class="flex justify-between items-center gap-3">
+        <!-- Logo and Brand -->
+        <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('home')">
+          <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center border border-white/20 shadow-sm">
+            <i data-lucide="sparkles" class="w-5 h-5 text-amber-300"></i>
+          </div>
+          <div>
+            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight flex items-center gap-1.5 leading-none">
+              Smart Grocery AI
+            </h1>
+            <span class="text-[10px] text-emerald-100 font-medium hidden sm:inline-block">Universal Smart Grocery Shopping</span>
+          </div>
+        </div>
+
+        <!-- Desktop & Laptop Nav Links (visible on md screens and up) -->
+        <nav class="hidden md:flex items-center gap-1 lg:gap-2">
+          <button onclick="switchTab('home')" id="top-nav-home" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-emerald-700/80 text-white">
+            <i data-lucide="home" class="w-3.5 h-3.5"></i>
+            <span>Home</span>
+          </button>
+          <button onclick="switchTab('products')" id="top-nav-products" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-100 hover:text-white hover:bg-emerald-700/60 transition flex items-center gap-1.5">
+            <i data-lucide="grid" class="w-3.5 h-3.5"></i>
+            <span>Product Finder</span>
+          </button>
+          <button onclick="switchTab('stores')" id="top-nav-stores" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-100 hover:text-white hover:bg-emerald-700/60 transition flex items-center gap-1.5">
+            <i data-lucide="store" class="w-3.5 h-3.5"></i>
+            <span>Stores</span>
+          </button>
+          <button onclick="switchTab('cart')" id="top-nav-cart" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-100 hover:text-white hover:bg-emerald-700/60 transition flex items-center gap-1.5">
+            <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+            <span>Shopping List</span>
+          </button>
+          <button onclick="switchTab('budget')" id="top-nav-budget" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-100 hover:text-white hover:bg-emerald-700/60 transition flex items-center gap-1.5">
+            <i data-lucide="pie-chart" class="w-3.5 h-3.5"></i>
+            <span>Budget</span>
+          </button>
+          <button onclick="switchTab('chat')" id="top-nav-chat" class="px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-100 hover:text-white hover:bg-emerald-700/60 transition flex items-center gap-1.5">
+            <i data-lucide="bot" class="w-3.5 h-3.5"></i>
+            <span>AI Assistant</span>
+          </button>
+        </nav>
+
+        <!-- Right Quick Action Controls -->
+        <div class="flex items-center gap-2">
+          <!-- Account Button -->
+          <button onclick="switchTab('account')" id="header-account-btn" class="px-3 py-1.5 bg-emerald-700/70 hover:bg-emerald-700 rounded-xl text-white transition flex items-center gap-1.5 relative text-xs font-semibold" title="My Account">
+            <i data-lucide="user" class="w-4 h-4"></i>
+            <span class="hidden sm:inline" id="header-account-label">Account</span>
+            <span id="header-auth-badge" class="hidden absolute top-1 right-1 w-2 h-2 bg-amber-300 rounded-full"></span>
+          </button>
+          <!-- Order History Button -->
+          <button onclick="switchTab('orders')" id="top-nav-orders" class="p-2 sm:px-3 sm:py-1.5 bg-emerald-700/70 hover:bg-emerald-700 rounded-xl text-white transition flex items-center gap-1.5 text-xs font-semibold" title="Order History">
+            <i data-lucide="receipt" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Orders</span>
+          </button>
+          <!-- Cart Icon Badge -->
+          <button onclick="switchTab('cart')" class="p-2 sm:px-3 sm:py-1.5 bg-emerald-700/70 rounded-xl relative hover:bg-emerald-700 transition flex items-center gap-1.5 text-xs font-bold" title="Shopping Cart">
+            <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">Cart</span>
+            <span id="cart-badge" class="bg-amber-400 text-emerald-950 font-extrabold text-[10px] min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center border-2 border-emerald-600">0</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content Screen Area (Scrollable with responsive padding) -->
+    <main id="app-content" class="flex-1 overflow-y-auto no-scrollbar pb-20 md:pb-8 bg-gray-50/70">
+      
+      <!-- SCREEN 1: HOME DASHBOARD -->
+      <section id="screen-home" class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-6xl mx-auto">
+        <!-- Top Welcome & Search Row (Responsive Grid on md/lg) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 items-stretch">
+          <!-- Welcome Card (Spans 2 cols on desktop) -->
+          <div class="lg:col-span-2 bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-5 sm:p-6 text-white shadow-lg relative overflow-hidden flex flex-col justify-between">
+            <div class="absolute right-[-10px] bottom-[-10px] opacity-15 pointer-events-none">
+              <i data-lucide="bot" class="w-36 h-36"></i>
+            </div>
+            <div>
+              <div class="flex justify-between items-start">
+                <p class="text-[10px] sm:text-xs font-semibold text-emerald-200 uppercase tracking-wider">Universal Grocery Hub</p>
+                <span id="home-store-tag" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-white/20 text-white border border-white/20">Walmart</span>
+              </div>
+              <h2 id="home-welcome-text" class="text-xl sm:text-2xl font-extrabold mt-1">Welcome, Guest 👋</h2>
+              <p id="home-welcome-sub" class="text-xs sm:text-sm text-emerald-100 mt-1 max-w-[90%]">
+                Compare prices across Walmart, Chalo FreshCo, No Frills & Costco with smart AI suggestions.
+              </p>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-2.5">
+              <button onclick="switchTab('stores')" class="bg-white hover:bg-emerald-50 text-emerald-800 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm transition">
+                <i data-lucide="store" class="w-4 h-4"></i> Change Store
+              </button>
+              <button onclick="switchTab('account')" id="home-auth-cta-btn" class="bg-amber-400 hover:bg-amber-300 text-emerald-950 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm transition">
+                <i data-lucide="user" class="w-4 h-4"></i> My Account
+              </button>
+              <button onclick="switchTab('products')" class="bg-emerald-700/80 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition">
+                <i data-lucide="grid" class="w-4 h-4"></i> Browse All 110 Items
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Budget Glance Widget -->
+          <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm flex flex-col justify-between">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+              <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Budget Status</span>
+              <button onclick="switchTab('budget')" class="text-xs font-bold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1 rounded-lg transition">
+                Manage
+              </button>
+            </div>
+            <div class="py-3">
+              <span class="text-xs text-gray-400 font-medium">Monthly Remaining Balance</span>
+              <div class="flex items-baseline gap-2 mt-0.5">
+                <span id="home-budget-remaining" class="text-2xl sm:text-3xl font-extrabold text-emerald-600">$100.00</span>
+              </div>
+              <span class="text-xs text-gray-500 mt-1 block">Limit: <strong id="home-budget-total" class="text-gray-800">$100.00</strong></span>
+            </div>
+            <button onclick="openMultiStoreComparison()" class="w-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition border border-emerald-200">
+              <i data-lucide="scale" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Price Comparison</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Global Search Bar & Store Switcher Row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <!-- Search Bar -->
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400"></i>
+            <input type="text" id="home-search" oninput="handleSearch(this.value)" placeholder="Search apples, milk, bread, rice, eggs..." class="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm">
+          </div>
+
+          <!-- Store Switcher Quick Bar -->
+          <div class="bg-white rounded-2xl p-2.5 border border-gray-200 shadow-sm flex items-center justify-between gap-2">
+            <span class="text-xs font-bold text-gray-700 flex items-center gap-1.5 whitespace-nowrap pl-2">
+              <i data-lucide="map-pin" class="w-3.5 h-3.5 text-emerald-600"></i>
+              Store:
+            </span>
+            <div class="grid grid-cols-4 gap-1.5 flex-1" id="home-quick-stores">
+              <!-- Dynamically Rendered Store Quick Buttons -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop 2-Column Section: Shopping List Summary + Store Deals -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+          <!-- Shopping List Summary Card -->
+          <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm space-y-3 flex flex-col justify-between">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+              <h3 class="font-bold text-sm sm:text-base text-gray-800 flex items-center gap-2">
+                <i data-lucide="list-checks" class="w-4 h-4 text-emerald-600"></i>
+                Shopping List Summary
+              </h3>
+              <button onclick="switchTab('cart')" class="text-xs text-emerald-600 font-bold hover:underline">
+                View All (<span id="home-list-count">0</span>)
+              </button>
+            </div>
+            <div id="home-list-preview" class="space-y-2 text-xs text-gray-500 min-h-[90px] flex flex-col justify-center">
+              <!-- Dynamic Preview List -->
+            </div>
+            <button type="button" onclick="openMultiStoreComparison()" class="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold py-2.5 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition">
+              <i data-lucide="scale" class="w-4 h-4 text-amber-300"></i>
+              <span>Compare Entire List Across All 4 Stores</span>
+            </button>
+          </div>
+
+          <!-- Personalized Deals Card -->
+          <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm space-y-3 flex flex-col justify-between">
+            <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+              <h3 class="font-bold text-sm sm:text-base text-gray-800 flex items-center gap-1.5">
+                <i data-lucide="tag" class="w-4 h-4 text-amber-500"></i>
+                Featured Deals at <span id="home-deals-store" class="text-emerald-700 font-extrabold">Walmart</span>
+              </h3>
+              <span class="text-[11px] text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-lg font-bold">Store Flyer</span>
+            </div>
+            <div id="deals-carousel" class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+              <!-- Dynamic Deals Cards -->
+            </div>
+            <button onclick="switchTab('products')" class="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold py-2 rounded-xl text-xs border border-gray-200 flex items-center justify-center gap-1.5 transition">
+              <i data-lucide="shopping-bag" class="w-3.5 h-3.5 text-emerald-600"></i>
+              <span>Shop Discounted Items in Finder</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: STORE SELECTION -->
+      <section id="screen-stores" class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-6xl mx-auto hidden">
+        <div class="flex justify-between items-center pb-2 border-b border-gray-100">
+          <div>
+            <h2 class="font-extrabold text-lg sm:text-xl text-gray-800">Select Grocery Store</h2>
+            <p class="text-xs sm:text-sm text-gray-500">Choose where you want to shop or compare</p>
+          </div>
+          <span class="text-xs bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full font-bold border border-emerald-200">4 Major Stores</span>
+        </div>
+
+        <!-- Store Cards List: 1 col on mobile, 2 cols on tablet/desktop -->
+        <div id="stores-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Dynamic Store Cards -->
+        </div>
+
+        <!-- Store Comparison Tip -->
+        <div class="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-xs sm:text-sm text-blue-900 flex items-start gap-3">
+          <i data-lucide="info" class="w-5 h-5 text-blue-600 shrink-0 mt-0.5"></i>
+          <div>
+            <span class="font-bold">Multi-Store Price Comparison:</span>
+            <p class="text-blue-800 mt-0.5 text-xs sm:text-sm">When browsing items in the <strong>Finder</strong>, tap <em>"Compare Prices"</em> on any product card to see live side-by-side rates at Walmart, Chalo FreshCo, No Frills & Costco!</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: PRODUCT FINDER -->
+      <section id="screen-products" class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-6xl mx-auto hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="font-bold text-base text-gray-800">Product Finder</h2>
+            <p class="text-xs text-gray-500">Browsing <span id="finder-store-label" class="font-bold text-emerald-700">Walmart</span></p>
+          </div>
+          <button onclick="switchTab('stores')" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold px-2.5 py-1 rounded-lg flex items-center gap-1">
+            <i data-lucide="repeat" class="w-3 h-3"></i> Switch
+          </button>
+        </div>
+
+        <!-- Search & Filter Bar -->
+        <div class="space-y-2">
+          <div class="relative">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400"></i>
+            <input type="text" id="product-search" oninput="filterProducts()" placeholder="Filter items..." class="w-full bg-white border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          </div>
+          <!-- Category Chips with Icons (12 Sections) -->
+          <div class="flex gap-2 overflow-x-auto no-scrollbar py-1" id="category-chips">
+            <!-- Dynamically populated categories with icons -->
+          </div>
+        </div>
+
+        <!-- Product Grid: 2 cols on mobile, 3 cols on tablet, 4 cols on desktop -->
+        <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          <!-- Dynamic Products Insertion -->
+        </div>
+      </section>
+
+      <!-- SCREEN 3: SHOPPING LIST & CART -->
+      <section id="screen-cart" class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-5xl mx-auto hidden">
+        <div class="flex justify-between items-center">
+          <h2 class="font-bold text-base text-gray-800 flex items-center gap-2">
+            <i data-lucide="shopping-cart" class="w-5 h-5 text-emerald-600"></i>
+            My Shopping List
+          </h2>
+          <button onclick="clearCheckedItems()" class="text-xs text-red-500 hover:underline font-medium">Clear Checked</button>
+        </div>
+
+        <!-- Quick Add Item Form -->
+        <form onsubmit="addCustomItem(event)" class="flex gap-2">
+          <input type="text" id="custom-item-name" placeholder="Add custom item (e.g. Garlic)..." required class="flex-1 bg-white border border-gray-200 rounded-xl px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <input type="number" step="0.1" id="custom-item-price" placeholder="$ Est." class="w-20 bg-white border border-gray-200 rounded-xl px-2 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-2 rounded-xl text-sm">
+            <i data-lucide="plus" class="w-5 h-5"></i>
+          </button>
+        </form>
+
+        <!-- Shopping List Items Container -->
+        <div id="shopping-list-container" class="space-y-2">
+          <!-- Dynamic List Items -->
+        </div>
+
+        <!-- Smart Summary Box -->
+        <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm space-y-3">
+          <h3 class="font-bold text-xs text-gray-400 uppercase tracking-wider">Cart Financial Overview</h3>
+          <div class="space-y-1.5 text-xs">
+            <div class="flex justify-between text-gray-600">
+              <span>Estimated Cart Subtotal:</span>
+              <span id="cart-subtotal" class="font-bold text-gray-800">$0.00</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+              <span>Remaining Budget:</span>
+              <span id="cart-remaining-budget" class="font-bold text-emerald-600">$100.00</span>
+            </div>
+          </div>
+          <div id="cart-budget-alert" class="hidden text-xs bg-amber-50 text-amber-800 p-2.5 rounded-xl border border-amber-200 flex items-start gap-2">
+            <i data-lucide="alert-triangle" class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"></i>
+            <div>
+              <p class="font-bold">Over Budget Warning!</p>
+              <p class="text-[11px] text-amber-700 mt-0.5">Your list exceeds your set budget. You can click 'Find Cheaper Options' on any item or compare store prices to lower your total cost.</p>
+            </div>
+          </div>
+
+          <!-- AI Multi-Store Compare Button -->
+          <button type="button" onclick="openMultiStoreComparison()" class="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white font-extrabold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm transition border border-emerald-500 cursor-pointer">
+            <i data-lucide="scale" class="w-4 h-4 text-amber-300"></i>
+            <span>AI Multi-Store Price Comparison</span>
+          </button>
+
+          <!-- Checkout CTA Button -->
+          <button onclick="goToCheckout()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2 shadow-md transition">
+            <span>Proceed to Checkout</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- SCREEN 4: BUDGET TRACKER -->
+      <section id="screen-budget" class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto hidden">
+        <div class="pb-2 border-b border-gray-100">
+          <h2 class="font-extrabold text-lg sm:text-xl text-gray-800">Budget Tracker & Insights</h2>
+          <p class="text-xs sm:text-sm text-gray-500">Monitor grocery expenses and get automated AI savings advice</p>
+        </div>
+
+        <!-- Set Budget Card -->
+        <div class="bg-white rounded-2xl p-4 sm:p-5 border border-gray-200 shadow-sm space-y-3">
+          <label class="block text-xs font-bold text-gray-700">Set Monthly Grocery Budget ($)</label>
+          <div class="flex gap-2">
+            <input type="number" id="budget-input" value="100" class="flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3.5 py-2 text-sm font-bold text-gray-800 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <button onclick="updateBudgetGoal()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs px-4 py-2 rounded-xl">Save</button>
+          </div>
+        </div>
+
+        <!-- Budget Visual Progress -->
+        <div class="bg-white rounded-2xl p-5 border border-gray-200 shadow-sm text-center space-y-4">
+          <div class="relative w-36 h-36 mx-auto flex items-center justify-center">
+            <!-- SVG Progress Ring -->
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+              <path class="text-gray-100" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path id="budget-progress-ring" class="text-emerald-500 stroke-current transition-all duration-500" stroke-dasharray="0, 100" stroke-width="3.5" stroke-linecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+            <div class="absolute flex flex-col items-center">
+              <span id="budget-spent-percent" class="text-2xl font-extrabold text-gray-800">0%</span>
+              <span class="text-[10px] text-gray-400 uppercase font-semibold">Spent</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 text-left pt-2 border-t border-gray-100">
+            <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
+              <p class="text-[10px] font-bold uppercase text-emerald-800">Est. Total Spent</p>
+              <p id="budget-spent-val" class="text-lg font-extrabold text-emerald-700 mt-0.5">$0.00</p>
+            </div>
+            <div id="budget-remaining-box" class="bg-blue-50 p-3 rounded-xl border border-blue-100">
+              <p class="text-[10px] font-bold uppercase text-blue-800">Remaining</p>
+              <p id="budget-remaining-val" class="text-lg font-extrabold text-blue-700 mt-0.5">$100.00</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Budget Saving AI Tips -->
+        <div class="bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-200/60 rounded-2xl p-4">
+          <h4 class="font-bold text-xs text-amber-900 flex items-center gap-1.5">
+            <i data-lucide="lightbulb" class="w-4 h-4 text-amber-600"></i>
+            AI Budget Saving Tip
+          </h4>
+          <p id="budget-ai-tip" class="text-xs text-amber-800 mt-1.5 leading-relaxed">
+            Comparing prices across No Frills and Walmart could save you roughly **$5.40** on basic staples like eggs and milk this week!
+          </p>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: AI CHAT ASSISTANT -->
+      <section id="screen-chat" class="p-4 sm:p-6 lg:p-8 flex flex-col h-[75vh] md:h-[650px] max-w-4xl mx-auto hidden space-y-4">
+        <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center text-white shrink-0">
+            <i data-lucide="bot" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-xs font-bold text-emerald-950">AI Grocery Assistant</h3>
+            <p class="text-[11px] text-emerald-700">Multi-store advisor for Walmart, Chalo FreshCo, No Frills & Costco</p>
+          </div>
+        </div>
+
+        <!-- Chat Messages Container -->
+        <div id="chat-messages" class="flex-1 space-y-3 overflow-y-auto no-scrollbar py-2 text-xs">
+          <!-- Initial AI Message -->
+          <div class="flex gap-2 items-start">
+            <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 text-xs font-bold">AI</div>
+            <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-none p-3 max-w-[85%] text-gray-700 shadow-sm leading-relaxed">
+              <span id="chat-ai-greeting-text">Hello! 👋 I'm your Smart Grocery AI Assistant. I can help you plan your shopping list, check verified store prices, and find budget-friendly alternatives.</span>
+              <div class="mt-2 flex flex-wrap gap-1">
+                <button onclick="sendQuickChat('Which store is cheapest for Milk and Eggs?')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] px-2 py-1 rounded-md border border-emerald-200 font-semibold">🔍 Compare Milk & Eggs</button>
+                <button onclick="sendQuickChat('Suggest a $15 dinner list at No Frills')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] px-2 py-1 rounded-md border border-emerald-200 font-semibold">🥗 $15 No Frills Dinner</button>
+                <button onclick="sendQuickChat('What are the best deals at Chalo FreshCo?')" class="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-[10px] px-2 py-1 rounded-md border border-emerald-200 font-semibold">🏷️ FreshCo Deals</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat Input Form -->
+        <form onsubmit="handleChatSubmit(event)" class="flex gap-2 pt-2 border-t border-gray-100">
+          <input type="text" id="chat-input" placeholder="Ask about stores, prices, meal plans..." required class="flex-1 bg-white border border-gray-200 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
+          <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-4 py-2.5 flex items-center justify-center transition">
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
+        </form>
+      </section>
+
+      <!-- SCREEN 6: CHECKOUT SCREEN -->
+      <section id="screen-checkout" class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto hidden">
+        <!-- Top Back Header -->
+        <div class="flex items-center justify-between border-b border-gray-200 pb-3">
+          <button onclick="switchTab('cart')" class="text-xs sm:text-sm font-bold text-gray-600 hover:text-emerald-600 flex items-center gap-1.5 transition">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Cart</span>
+          </button>
+          <span class="text-xs sm:text-sm font-extrabold text-gray-800">Checkout & Order Reservation</span>
+          <span class="text-[10px] sm:text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full">Secure</span>
+        </div>
+
+        <!-- 1. Store Selection for Order -->
+        <div class="bg-white rounded-2xl p-3.5 border border-gray-200 shadow-sm space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+              <i data-lucide="store" class="w-4 h-4 text-emerald-600"></i>
+              Fulfillment Store:
+            </label>
+            <span id="checkout-store-display" class="text-xs font-extrabold text-emerald-700">Walmart</span>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5" id="checkout-store-selector">
+            <!-- Dynamic 4 store pill buttons -->
+          </div>
+        </div>
+
+        <!-- 2. Selected Items & Shopping Cart Review -->
+        <div class="bg-white rounded-2xl p-3.5 border border-gray-200 shadow-sm space-y-2.5">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+              <i data-lucide="shopping-bag" class="w-4 h-4 text-emerald-600"></i>
+              Selected Items (<span id="checkout-items-count">0</span>)
+            </h3>
+            <button onclick="switchTab('cart')" class="text-[11px] text-emerald-600 font-semibold hover:underline">Edit List</button>
+          </div>
+          <!-- Item list preview with quantity and totals -->
+          <div id="checkout-items-preview" class="space-y-1.5 max-h-48 overflow-y-auto no-scrollbar text-xs divide-y divide-gray-100">
+            <!-- Dynamic items preview -->
+          </div>
+        </div>
+
+        <!-- 3. AI Budget & Savings Check -->
+        <div id="checkout-budget-box" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 space-y-1.5">
+          <div class="flex items-center justify-between text-xs font-bold">
+            <span class="flex items-center gap-1 text-emerald-800">
+              <i data-lucide="shield-check" class="w-4 h-4 text-emerald-600"></i>
+              AI Budget Check:
+            </span>
+            <span id="checkout-budget-status" class="text-emerald-700">Within Budget</span>
+          </div>
+          <p id="checkout-budget-message" class="text-[11px] text-emerald-800 leading-snug">
+            Your estimated total is within your monthly budget of $100.00.
+          </p>
+        </div>
+
+        <!-- 4. Fulfillment Method (Pickup vs Delivery) -->
+        <div class="bg-white rounded-2xl p-3.5 border border-gray-200 shadow-sm space-y-3">
+          <label class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+            <i data-lucide="truck" class="w-4 h-4 text-emerald-600"></i>
+            Fulfillment Option:
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="setFulfillment('pickup')" id="opt-pickup" class="p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center bg-emerald-50 border-emerald-500 text-emerald-800 font-bold">
+              <div class="flex items-center gap-1 text-xs">
+                <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+                <span>Store Pickup</span>
+              </div>
+              <span class="text-[10px] text-emerald-600 mt-0.5">FREE ($0.00)</span>
+            </button>
+            <button type="button" onclick="setFulfillment('delivery')" id="opt-delivery" class="p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center bg-white border-gray-200 text-gray-600 font-medium">
+              <div class="flex items-center gap-1 text-xs">
+                <i data-lucide="truck" class="w-3.5 h-3.5"></i>
+                <span>Home Delivery</span>
+              </div>
+              <span class="text-[10px] text-gray-500 mt-0.5">+$4.99 fee</span>
+            </button>
+          </div>
+
+          <!-- Time Slot Selector -->
+          <div class="space-y-1">
+            <label class="text-[11px] font-semibold text-gray-600">Preferred Time Slot:</label>
+            <select id="checkout-timeslot" onchange="updateCheckoutFinancials()" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 font-medium">
+              <option value="Today: 5:00 PM - 7:00 PM">Today: 5:00 PM - 7:00 PM</option>
+              <option value="Today: 7:00 PM - 9:00 PM">Today: 7:00 PM - 9:00 PM</option>
+              <option value="Tomorrow: 9:00 AM - 11:00 AM">Tomorrow: 9:00 AM - 11:00 AM</option>
+              <option value="Tomorrow: 2:00 PM - 4:00 PM">Tomorrow: 2:00 PM - 4:00 PM</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 5. Customer Details Form -->
+        <div class="bg-white rounded-2xl p-3.5 border border-gray-200 shadow-sm space-y-2.5">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+              <i data-lucide="user" class="w-4 h-4 text-emerald-600"></i>
+              Customer Information
+            </h3>
+            <span id="checkout-auth-indicator" class="text-[9px] text-gray-500 font-medium">Guest Mode</span>
+          </div>
+          <div class="space-y-2 text-xs">
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Full Name *</label>
+              <input type="text" id="cust-name" value="" placeholder="Enter your full name" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Phone *</label>
+                <input type="tel" id="cust-phone" value="" placeholder="Phone number" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Email *</label>
+                <input type="email" id="cust-email" value="" placeholder="Email address" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+              </div>
+            </div>
+            <div id="cust-address-group" class="hidden">
+              <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Delivery Address *</label>
+              <input type="text" id="cust-address" value="" placeholder="Street address & postal code" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Payment Method Screen -->
+        <div class="bg-white rounded-2xl p-3.5 border border-gray-200 shadow-sm space-y-2.5">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+              <i data-lucide="credit-card" class="w-4 h-4 text-emerald-600"></i>
+              Payment Method (Prototype)
+            </h3>
+            <span class="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">Demo Checkout</span>
+          </div>
+
+          <div class="space-y-2 text-xs">
+            <label class="flex items-center gap-2.5 p-2.5 rounded-xl border border-emerald-400 bg-emerald-50/50 cursor-pointer">
+              <input type="radio" name="payment-method" value="register" checked onchange="setPaymentMethod('register')" class="text-emerald-600 focus:ring-emerald-500">
+              <div class="flex-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-gray-800 block text-xs">Pay at Store Register on Pickup</span>
+                  <span class="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded">Store Pickup</span>
+                </div>
+                <span class="text-[10px] text-gray-500 block mt-0.5">Pay in-store at customer service counter upon arrival.</span>
+              </div>
+            </label>
+
+            <label class="flex items-center gap-2.5 p-2.5 rounded-xl border border-gray-200 bg-white cursor-pointer hover:bg-gray-50">
+              <input type="radio" name="payment-method" value="card_demo" onchange="setPaymentMethod('card_demo')" class="text-emerald-600 focus:ring-emerald-500">
+              <div class="flex-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-gray-800 block text-xs">Demo Card Payment (Simulated)</span>
+                  <span class="text-[9px] bg-blue-100 text-blue-800 font-bold px-1.5 py-0.5 rounded">Prototype</span>
+                </div>
+                <span class="text-[10px] text-gray-500 block mt-0.5">Simulate instant card checkout without real charges or storing card numbers.</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 7. Comprehensive Order Financial Summary -->
+        <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm space-y-2 text-xs">
+          <h3 class="font-bold text-gray-400 uppercase tracking-wider text-[10px]">Order Financial Summary</h3>
+          <div class="space-y-1.5 pt-1">
+            <div class="flex justify-between text-gray-600">
+              <span>Items Subtotal:</span>
+              <span id="order-subtotal" class="font-bold text-gray-800">$0.00</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+              <span id="order-fulfillment-label">Pickup Fee:</span>
+              <span id="order-fulfillment-fee" class="font-bold text-emerald-600">FREE</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+              <span>Estimated Tax (5% GST/HST):</span>
+              <span id="order-tax" class="font-bold text-gray-800">$0.00</span>
+            </div>
+            <div class="flex justify-between text-emerald-700 font-semibold" id="order-discount-row">
+              <span class="flex items-center gap-1"><i data-lucide="tag" class="w-3 h-3"></i> AI Smart Deal Discount:</span>
+              <span id="order-discount">-$0.00</span>
+            </div>
+            <div class="border-t border-gray-200 pt-2 flex justify-between items-baseline text-sm">
+              <span class="font-extrabold text-gray-900">Total Amount:</span>
+              <span id="order-final-total" class="text-base font-extrabold text-emerald-600">$0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Place Order Button -->
+        <button onclick="placeOrder()" class="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-extrabold py-3.5 rounded-2xl text-sm flex items-center justify-center gap-2 shadow-lg transition">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span id="place-order-btn-text">Place Order (Prototype)</span>
+        </button>
+
+        <p class="text-[10px] text-center text-gray-400 leading-tight">
+          ℹ️ Prototype order simulation. Generates an instant order confirmation and saves it to your account order history.
+        </p>
+      </section>
+
+      <!-- SCREEN 7: ORDER CONFIRMATION -->
+      <section id="screen-confirmation" class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-2xl mx-auto hidden text-center">
+        <!-- Success Badge -->
+        <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner mt-2">
+          <i data-lucide="check" class="w-8 h-8"></i>
+        </div>
+
+        <div>
+          <span class="text-[10px] font-extrabold tracking-widest text-emerald-600 uppercase bg-emerald-50 px-2.5 py-0.5 rounded-full">Order Confirmed</span>
+          <h2 class="text-lg font-bold text-gray-900 mt-1">Thank You! Your Order is Confirmed!</h2>
+          <p class="text-xs text-gray-500 mt-0.5">Order Number: <strong id="conf-order-id" class="text-gray-800 font-mono">---</strong></p>
+        </div>
+
+        <!-- Order Details Card -->
+        <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm text-left space-y-3 text-xs">
+          <div class="flex justify-between items-center pb-2.5 border-b border-gray-100">
+            <div>
+              <span class="text-gray-400 text-[10px] uppercase font-semibold">Store Selected</span>
+              <p id="conf-store-name" class="font-bold text-gray-800 text-xs mt-0.5">Store</p>
+            </div>
+            <div class="text-right">
+              <span class="text-gray-400 text-[10px] uppercase font-semibold">Fulfillment</span>
+              <p id="conf-fulfillment-type" class="font-bold text-emerald-700 text-xs mt-0.5">Store Pickup (FREE)</p>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center pb-2.5 border-b border-gray-100">
+            <div>
+              <span class="text-gray-400 text-[10px] uppercase font-semibold">Time Slot</span>
+              <p id="conf-time-slot" class="font-medium text-gray-700 text-[11px] mt-0.5">---</p>
+            </div>
+            <div class="text-right">
+              <span class="text-gray-400 text-[10px] uppercase font-semibold">Customer</span>
+              <p id="conf-customer-name" class="font-medium text-gray-700 text-[11px] mt-0.5">---</p>
+            </div>
+          </div>
+
+          <!-- Items list -->
+          <div>
+            <span class="text-gray-400 text-[10px] uppercase font-semibold">Ordered Items</span>
+            <div id="conf-items-list" class="mt-1.5 space-y-1 max-h-36 overflow-y-auto no-scrollbar divide-y divide-gray-50 text-[11px]">
+              <!-- Dynamic confirmed items -->
+            </div>
+          </div>
+
+          <!-- Total -->
+          <div class="pt-2 border-t border-gray-100 flex justify-between items-baseline font-bold">
+            <span class="text-gray-700">Estimated Total Due:</span>
+            <span id="conf-total-price" class="text-base text-emerald-600 font-extrabold">$0.00</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-2 pt-2">
+          <button onclick="switchTab('orders')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow transition">
+            <i data-lucide="receipt" class="w-4 h-4"></i>
+            <span>View in Order History</span>
+          </button>
+          <button onclick="switchTab('home')" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1 transition">
+            <i data-lucide="home" class="w-4 h-4"></i>
+            <span>Return to Home Dashboard</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SCREEN 8: ORDER HISTORY -->
+      <section id="screen-orders" class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-4xl mx-auto hidden">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="font-bold text-base text-gray-800 flex items-center gap-1.5">
+              <i data-lucide="receipt" class="w-4 h-4 text-emerald-600"></i>
+              Order History
+            </h2>
+            <p class="text-xs text-gray-500">Your verified orders and reservations</p>
+          </div>
+          <button onclick="clearOrdersHistory()" class="text-xs text-red-500 hover:underline font-medium">Clear All</button>
+        </div>
+
+        <!-- Orders Container -->
+        <div id="orders-history-container" class="space-y-3">
+          <!-- Dynamic Order Cards -->
+        </div>
+      </section>
+
+      <!-- SCREEN 9: AI MULTI-STORE LIST COMPARISON & SMART RECOMMENDATION -->
+      <section id="screen-multi-compare" class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-5xl mx-auto hidden">
+        <!-- Top Back Header -->
+        <div class="flex items-center justify-between border-b border-gray-200 pb-3">
+          <button onclick="switchTab('cart')" class="text-xs font-bold text-gray-600 hover:text-emerald-600 flex items-center gap-1">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+            <span>Back to Shopping List</span>
+          </button>
+          <span class="text-xs font-bold text-gray-800">Multi-Store AI Analysis</span>
+          <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">AI Powered</span>
+        </div>
+
+        <!-- Empty Cart Notice (shows when cart is empty) -->
+        <div id="multi-compare-empty" class="hidden bg-white rounded-2xl p-6 text-center border border-gray-200 shadow-sm space-y-3">
+          <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-600 mx-auto flex items-center justify-center">
+            <i data-lucide="scale" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm text-gray-800">No Items to Compare Yet!</h3>
+            <p class="text-xs text-gray-500 mt-1 max-w-xs mx-auto">
+              Add some items to your shopping list to instantly see total costs and savings across Walmart, Chalo FreshCo, No Frills, and Costco.
+            </p>
+          </div>
+          <button onclick="switchTab('products')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-xl text-xs inline-flex items-center gap-1.5 shadow-sm transition">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>Browse & Add Products</span>
+          </button>
+        </div>
+
+        <!-- Comparison Content Container -->
+        <div id="multi-compare-content" class="space-y-4">
+          <!-- 1. AI Recommendation Banner (Cheapest Store Highlight) -->
+          <div id="ai-recommend-banner" class="bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-2xl p-4 shadow-md space-y-2 relative overflow-hidden">
+            <div class="flex justify-between items-start">
+              <span class="text-[10px] font-extrabold uppercase tracking-wider bg-amber-400 text-emerald-950 px-2 py-0.5 rounded-md flex items-center gap-1">
+                <i data-lucide="sparkles" class="w-3 h-3"></i> Top Recommendation
+              </span>
+              <span id="ai-rec-badge" class="text-xs font-bold bg-white/20 text-white px-2 py-0.5 rounded-full">Lowest Total</span>
+            </div>
+          <div>
+            <h3 class="text-base font-extrabold" id="ai-rec-title">Analyzing your shopping list...</h3>
+            <p class="text-xs text-emerald-100 mt-0.5 leading-relaxed" id="ai-rec-desc">
+              Comparing your items across Walmart, Chalo FreshCo, No Frills, and Costco...
+            </p>
+          </div>
+          <div class="pt-2 border-t border-white/20 flex justify-between items-center text-xs">
+            <span class="text-emerald-100 text-[11px]">Potential Maximum Savings:</span>
+            <span id="ai-rec-savings" class="text-sm font-extrabold text-amber-300">$0.00</span>
+          </div>
+        </div>
+
+        <!-- 2. Side-by-Side Stores Comparison Table -->
+        <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+              <i data-lucide="table" class="w-4 h-4 text-emerald-600"></i>
+              Complete List Cost Comparison
+            </h3>
+            <span class="text-[10px] text-gray-400 font-medium">All 4 Stores</span>
+          </div>
+
+          <div class="overflow-x-auto no-scrollbar">
+            <table class="w-full text-left text-xs">
+              <thead>
+                <tr class="border-b border-gray-100 text-[10px] text-gray-400 uppercase font-semibold">
+                  <th class="pb-2">Store</th>
+                  <th class="pb-2 text-right">Est. Total</th>
+                  <th class="pb-2 text-right">Savings</th>
+                  <th class="pb-2 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody id="multi-compare-table-body" class="divide-y divide-gray-100">
+                <!-- Dynamic comparison table rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <p class="text-[10px] text-gray-400 italic">
+            * Estimates include proportional unit price normalization for bulk sizes (e.g. Costco club packages).
+          </p>
+        </div>
+
+        <!-- 3. Split Shopping Plan (AI Optimal Optimization) -->
+        <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm space-y-3">
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                <i data-lucide="split" class="w-4 h-4 text-purple-600"></i>
+                AI Split Shopping Option
+              </h3>
+              <p class="text-[11px] text-gray-500 mt-0.5">Buy each item at its absolute cheapest store</p>
+            </div>
+            <span class="text-[10px] bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded-full border border-purple-200">Optimal Savings</span>
+          </div>
+
+          <div id="split-shopping-summary" class="bg-purple-50/70 border border-purple-100 rounded-xl p-3 text-xs space-y-2">
+            <!-- Dynamic split summary -->
+          </div>
+
+          <!-- Split Shopping Items Breakdown -->
+          <div id="split-items-breakdown" class="space-y-2 max-h-52 overflow-y-auto no-scrollbar text-xs">
+            <!-- Dynamic split groups by store -->
+          </div>
+
+          <button onclick="applySplitShoppingToCart()" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm transition">
+            <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+            <span>Apply Optimal Split Shopping Plan to Cart</span>
+          </button>
+        </div>
+
+        <!-- 4. Package Unit Comparison & AI Out-of-Stock Advice -->
+        <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm space-y-2.5">
+          <h3 class="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+            <i data-lucide="info" class="w-4 h-4 text-blue-600"></i>
+            Package Equivalency & Availability Notes
+          </h3>
+          <div id="equivalency-notes-container" class="space-y-1.5 text-xs text-gray-600">
+            <!-- Dynamic notes -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Prototype Disclaimer Notice -->
+      <p class="text-[10px] text-center text-gray-400 leading-tight">
+        ℹ️ Price comparison and store recommendation system. Real verified store data feeds required for live price calculations.
+      </p>
+    </section>
+
+    <!-- SCREEN 10: ACCOUNT & USER MANAGEMENT -->
+    <section id="screen-account" class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-3xl mx-auto hidden">
+      <!-- Top Header -->
+      <div class="flex items-center justify-between border-b border-gray-200 pb-3">
+        <div>
+          <h2 class="font-bold text-base text-gray-800 flex items-center gap-1.5">
+            <i data-lucide="user-check" class="w-4 h-4 text-emerald-600"></i>
+            Customer Account
+          </h2>
+          <p class="text-[11px] text-gray-500" id="account-header-sub">Manage profile, authentication & verified data feeds</p>
+        </div>
+        <span id="account-auth-status-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">Guest</span>
+      </div>
+
+      <!-- NOT LOGGED IN (GUEST / AUTH VIEW) -->
+      <div id="account-guest-view" class="space-y-4">
+        <!-- Auth Mode Tabs (Sign In / Create Account) -->
+        <div class="flex bg-gray-200 p-1 rounded-xl">
+          <button type="button" onclick="setAuthMode('login')" id="auth-tab-login" class="flex-1 py-1.5 text-xs font-bold rounded-lg transition bg-white text-emerald-700 shadow-sm">
+            Sign In
+          </button>
+          <button type="button" onclick="setAuthMode('register')" id="auth-tab-register" class="flex-1 py-1.5 text-xs font-bold rounded-lg transition text-gray-600 hover:text-gray-900">
+            Create Account
+          </button>
+        </div>
+
+        <!-- Alert / Status message container -->
+        <div id="auth-alert" class="hidden p-3 rounded-xl text-xs font-medium border"></div>
+
+        <!-- SIGN IN FORM -->
+        <form id="form-login" onsubmit="handleLoginSubmit(event)" class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm space-y-3">
+          <div class="space-y-1">
+            <label class="block text-[11px] font-bold text-gray-700">Email Address *</label>
+            <div class="relative">
+              <i data-lucide="mail" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
+              <input type="email" id="login-email" required placeholder="name@example.com" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-[11px] font-bold text-gray-700">Password *</label>
+            <div class="relative">
+              <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
+              <input type="password" id="login-password" required placeholder="Enter your password" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-2.5 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5">
+            <i data-lucide="log-in" class="w-4 h-4"></i>
+            <span>Sign In</span>
+          </button>
+
+          <p class="text-[10px] text-gray-400 text-center">
+            Don't have an account? <button type="button" onclick="setAuthMode('register')" class="text-emerald-600 font-bold hover:underline">Create one now</button>
+          </p>
+        </form>
+
+        <!-- CREATE ACCOUNT FORM -->
+        <form id="form-register" onsubmit="handleRegisterSubmit(event)" class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm space-y-3 hidden">
+          <div class="space-y-1">
+            <label class="block text-[11px] font-bold text-gray-700">Full Name *</label>
+            <div class="relative">
+              <i data-lucide="user" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
+              <input type="text" id="reg-name" required placeholder="First and last name" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-[11px] font-bold text-gray-700">Email Address *</label>
+            <div class="relative">
+              <i data-lucide="mail" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
+              <input type="email" id="reg-email" required placeholder="name@example.com" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div class="space-y-1">
+              <label class="block text-[11px] font-bold text-gray-700">Phone</label>
+              <input type="tel" id="reg-phone" placeholder="(555) 000-0000" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+            <div class="space-y-1">
+              <label class="block text-[11px] font-bold text-gray-700">Delivery Address</label>
+              <input type="text" id="reg-address" placeholder="Street address" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-[11px] font-bold text-gray-700">Password * (Min 6 characters)</label>
+            <div class="relative">
+              <i data-lucide="lock" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
+              <input type="password" id="reg-password" required minlength="6" placeholder="Choose a password" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="block text-[11px] font-bold text-gray-700">Confirm Password *</label>
+            <div class="relative">
+              <i data-lucide="check" class="w-4 h-4 absolute left-3 top-2.5 text-gray-400"></i>
+              <input type="password" id="reg-password-confirm" required minlength="6" placeholder="Confirm your password" class="w-full bg-gray-50 border border-gray-200 rounded-xl pl-9 pr-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-2.5 rounded-xl text-xs shadow-md transition flex items-center justify-center gap-1.5">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            <span>Create Account</span>
+          </button>
+
+          <p class="text-[10px] text-gray-400 text-center">
+            Already have an account? <button type="button" onclick="setAuthMode('login')" class="text-emerald-600 font-bold hover:underline">Sign In here</button>
+          </p>
+        </form>
+
+        <!-- Security Info Note -->
+        <div class="bg-gray-100 rounded-2xl p-3 border border-gray-200 text-[11px] text-gray-600 space-y-1">
+          <div class="font-bold flex items-center gap-1 text-gray-800">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i> Local Encrypted Security
+          </div>
+          <p class="text-[10px] text-gray-500">
+            Passwords are protected with PBKDF2 cryptographic hashing. Each customer's shopping list, budget preferences, and order history are kept completely separate.
+          </p>
+        </div>
+      </div>
+
+      <!-- LOGGED IN USER VIEW -->
+      <div id="account-user-view" class="space-y-4 hidden">
+        <!-- User Profile Card -->
+        <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-2xl p-4 text-white shadow-md relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-full bg-white text-emerald-800 font-extrabold flex items-center justify-center text-lg shadow-sm" id="user-avatar-initials">
+                U
+              </div>
+              <div>
+                <h3 class="font-bold text-base" id="user-profile-name">Customer Name</h3>
+                <p class="text-xs text-emerald-100" id="user-profile-email">email@example.com</p>
+                <span class="inline-block mt-1 text-[9px] bg-white/20 text-white font-semibold px-2 py-0.5 rounded-full">
+                  Verified Customer Account
+                </span>
+              </div>
+            </div>
+            <button onclick="handleLogout()" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-xl transition" title="Log Out">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Quick Metrics Grid -->
+          <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-white/20 text-center">
+            <div class="bg-white/10 rounded-xl p-2">
+              <span class="text-[10px] text-emerald-100 block">List Items</span>
+              <span class="text-sm font-extrabold" id="user-metric-cart">0</span>
+            </div>
+            <div class="bg-white/10 rounded-xl p-2">
+              <span class="text-[10px] text-emerald-100 block">Budget</span>
+              <span class="text-sm font-extrabold" id="user-metric-budget">$100</span>
+            </div>
+            <div class="bg-white/10 rounded-xl p-2">
+              <span class="text-[10px] text-emerald-100 block">Orders</span>
+              <span class="text-sm font-extrabold" id="user-metric-orders">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert / Status message container for profile updates -->
+        <div id="profile-alert" class="hidden p-3 rounded-xl text-xs font-medium border"></div>
+
+        <!-- Profile Details Section -->
+        <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm space-y-3">
+          <h3 class="font-bold text-xs text-gray-800 flex items-center gap-1.5">
+            <i data-lucide="user" class="w-4 h-4 text-emerald-600"></i>
+            Profile Information
+          </h3>
+
+          <form id="form-update-profile" onsubmit="handleUpdateProfile(event)" class="space-y-2.5 text-xs">
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Full Name</label>
+              <input type="text" id="prof-name" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Phone</label>
+                <input type="tel" id="prof-phone" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Delivery Address</label>
+                <input type="text" id="prof-address" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+              </div>
+            </div>
+            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-xs transition">
+              Update Profile Information
+            </button>
+          </form>
+        </div>
+
+        <!-- Change Password Section -->
+        <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm space-y-3">
+          <h3 class="font-bold text-xs text-gray-800 flex items-center gap-1.5">
+            <i data-lucide="key" class="w-4 h-4 text-emerald-600"></i>
+            Change Password
+          </h3>
+
+          <form id="form-change-password" onsubmit="handleChangePassword(event)" class="space-y-2.5 text-xs">
+            <div>
+              <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Current Password</label>
+              <input type="password" id="cp-current" required class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">New Password</label>
+                <input type="password" id="cp-new" required minlength="6" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+              </div>
+              <div>
+                <label class="block text-[11px] font-semibold text-gray-600 mb-0.5">Confirm New</label>
+                <input type="password" id="cp-confirm" required minlength="6" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500">
+              </div>
+            </div>
+            <button type="submit" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-2 rounded-xl text-xs transition">
+              Change Password
+            </button>
+          </form>
+        </div>
+
+
+
+        <!-- Sign Out Button -->
+        <button onclick="handleLogout()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 transition">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>Sign Out of Account</span>
+        </button>
+      </div>
+    </section>
+
+    </main>
+
+    <!-- Modal: Multi-Store Price Comparison Modal -->
+    <div id="compare-modal" class="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center hidden p-0 sm:p-4">
+      <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[85vh] overflow-y-auto no-scrollbar">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="text-[10px] sm:text-xs font-bold text-emerald-600 uppercase tracking-wider">Multi-Store Price Comparison</span>
+            <h3 id="compare-modal-title" class="font-bold text-sm sm:text-base text-gray-800 mt-0.5">Product Name</h3>
+          </div>
+          <button onclick="closeCompareModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <div id="compare-modal-list" class="space-y-2.5">
+          <!-- Dynamic Store Price Rows -->
+        </div>
+
+        <div class="bg-emerald-50 p-3 sm:p-4 rounded-xl border border-emerald-100 text-[11px] sm:text-xs text-emerald-800 flex items-start gap-2.5">
+          <i data-lucide="sparkles" class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+          <span id="compare-ai-verdict">AI Insight: No Frills offers the lowest estimated unit price for this product.</span>
+        </div>
+
+        <button onclick="closeCompareModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl text-xs sm:text-sm transition">
+          Close Comparison
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation Bar (Visible on mobile/small tablets, hidden on desktop/laptop where top nav is active) -->
+    <nav class="md:hidden fixed sm:absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-1 py-2 flex justify-around items-center z-20 shadow-lg">
+      <button onclick="switchTab('home')" id="nav-home" class="nav-btn active flex flex-col items-center gap-0.5 text-emerald-600 font-bold text-[9px] py-1 px-2 rounded-lg">
+        <i data-lucide="home" class="w-4 h-4"></i>
+        <span>Home</span>
+      </button>
+      <button onclick="switchTab('products')" id="nav-products" class="nav-btn flex flex-col items-center gap-0.5 text-gray-400 font-medium text-[9px] hover:text-emerald-600 py-1 px-2 rounded-lg">
+        <i data-lucide="grid" class="w-4 h-4"></i>
+        <span>Finder</span>
+      </button>
+      <button onclick="switchTab('cart')" id="nav-cart" class="nav-btn flex flex-col items-center gap-0.5 text-gray-400 font-medium text-[9px] hover:text-emerald-600 py-1 px-2 rounded-lg">
+        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+        <span>List</span>
+      </button>
+      <button onclick="switchTab('budget')" id="nav-budget" class="nav-btn flex flex-col items-center gap-0.5 text-gray-400 font-medium text-[9px] hover:text-emerald-600 py-1 px-2 rounded-lg">
+        <i data-lucide="pie-chart" class="w-4 h-4"></i>
+        <span>Budget</span>
+      </button>
+      <button onclick="switchTab('chat')" id="nav-chat" class="nav-btn flex flex-col items-center gap-0.5 text-gray-400 font-medium text-[9px] hover:text-emerald-600 py-1 px-2 rounded-lg">
+        <i data-lucide="bot" class="w-4 h-4"></i>
+        <span>Assistant</span>
+      </button>
+      <button onclick="switchTab('account')" id="nav-account" class="nav-btn flex flex-col items-center gap-0.5 text-gray-400 font-medium text-[9px] hover:text-emerald-600 py-1 px-2 rounded-lg">
+        <i data-lucide="user" class="w-4 h-4"></i>
+        <span>Account</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // Supported Multi-Store Definitions
+    const STORES = [
+      {
+        id: 'walmart',
+        name: 'Walmart',
+        fullName: 'Walmart Supercentre',
+        tagline: 'Save money. Live better.',
+        color: 'from-blue-600 to-blue-700',
+        badgeBg: 'bg-blue-600',
+        dotColor: 'bg-blue-500',
+        textColor: 'text-blue-600',
+        lightBg: 'bg-blue-50',
+        borderColor: 'border-blue-200',
+        logoText: 'W',
+        distance: '1.2 km away'
+      },
+      {
+        id: 'freshco',
+        name: 'Chalo FreshCo',
+        fullName: 'Chalo FreshCo Grocers',
+        tagline: 'Fresh South Asian & Canadian staples',
+        color: 'from-orange-500 to-amber-600',
+        badgeBg: 'bg-orange-500',
+        dotColor: 'bg-orange-500',
+        textColor: 'text-orange-600',
+        lightBg: 'bg-orange-50',
+        borderColor: 'border-orange-200',
+        logoText: 'FC',
+        distance: '2.5 km away'
+      },
+      {
+        id: 'nofrills',
+        name: 'No Frills',
+        fullName: 'No Frills Supermarket',
+        tagline: "Won't Be Beat. Deep discount groceries.",
+        color: 'from-yellow-400 to-yellow-500',
+        badgeBg: 'bg-yellow-500',
+        dotColor: 'bg-yellow-400',
+        textColor: 'text-yellow-700',
+        lightBg: 'bg-yellow-50',
+        borderColor: 'border-yellow-200',
+        logoText: 'NF',
+        distance: '3.1 km away'
+      },
+      {
+        id: 'costco',
+        name: 'Costco',
+        fullName: 'Costco Wholesale Club',
+        tagline: 'Bulk values & Kirkland Signature',
+        color: 'from-red-600 to-rose-700',
+        badgeBg: 'bg-red-600',
+        dotColor: 'bg-red-500',
+        textColor: 'text-red-600',
+        lightBg: 'bg-red-50',
+        borderColor: 'border-red-200',
+        logoText: 'C',
+        distance: '5.8 km away'
+      }
+    ];
+
+    // Store-Specific Deals (Sample Prototype Data)
+    const STORE_DEALS = {
+      walmart: [
+        { title: 'Rollback on Great Value Oats', code: 'ROLLBACK', bg: 'from-blue-600 to-blue-800', desc: 'Save $1.50 per pack' },
+        { title: '2 for $6 Bakery Loaves', code: 'WMTBAKE', bg: 'from-emerald-500 to-teal-600', desc: 'Fresh daily baked loaves' },
+        { title: '$5 Off $30 Pantry Essentials', code: 'PANTRY5', bg: 'from-indigo-600 to-blue-600', desc: 'Auto-applied at checkout' }
+      ],
+      freshco: [
+        { title: 'Chalo Deal: Basmati Rice 10lb $11.99', code: 'CHALORICE', bg: 'from-orange-500 to-amber-600', desc: 'South Asian flyer feature' },
+        { title: 'Buy 2 Alphonso Mango boxes get 10% off', code: 'CHALOMANGO', bg: 'from-amber-500 to-yellow-600', desc: 'Seasonal fresh import' },
+        { title: 'Paneer & Dahi 15% discount', code: 'DAIRYCHALO', bg: 'from-emerald-600 to-teal-600', desc: 'Fresh dairy section' }
+      ],
+      nofrills: [
+        { title: 'Hauler Deal: No Name Eggs $2.99', code: 'HAULER', bg: 'from-yellow-500 to-amber-600', desc: "Won't be beat guarantee" },
+        { title: 'No Name Butter $3.88', code: 'NNBUTTER', bg: 'from-yellow-600 to-red-600', desc: 'Weekend flyer special' },
+        { title: 'Points Bonanza: 2,000 PC Optimum', code: 'PCOPTIMUM', bg: 'from-red-500 to-pink-600', desc: 'On fresh produce spend' }
+      ],
+      costco: [
+        { title: 'Kirkland Signature 30-Pack Eggs $7.49', code: 'BULKDEAL', bg: 'from-red-600 to-rose-800', desc: 'Bulk per-unit lowest price' },
+        { title: '$4 Instant Savings on Kirkland Coffee', code: 'KIRKCOFFEE', bg: 'from-amber-700 to-stone-800', desc: 'Wholesale member pricing' },
+        { title: 'Rotisserie Whole Chicken $7.99', code: 'ROTISSERIE', bg: 'from-red-700 to-orange-700', desc: 'Signature hot deli offer' }
+      ]
+    };
+
+    // 12 Grocery Categories with Lucide Icon Mapping
+    const CATEGORIES = [
+      { name: 'All', icon: 'grid', label: 'All Items' },
+      { name: 'Fruits', icon: 'apple', label: 'Fruits (10)' },
+      { name: 'Vegetables', icon: 'carrot', label: 'Vegetables (12)' },
+      { name: 'Dairy & Eggs', icon: 'egg', label: 'Dairy & Eggs (10)' },
+      { name: 'Bread & Bakery', icon: 'croissant', label: 'Bakery (8)' },
+      { name: 'Meat & Seafood', icon: 'beef', label: 'Meat & Seafood (10)' },
+      { name: 'Rice, Pasta & Grains', icon: 'wheat', label: 'Grains & Pasta (10)' },
+      { name: 'Canned & Packaged Foods', icon: 'box', label: 'Canned & Packaged (10)' },
+      { name: 'Snacks & Sweets', icon: 'cookie', label: 'Snacks & Sweets (10)' },
+      { name: 'Beverages', icon: 'coffee', label: 'Beverages (8)' },
+      { name: 'Frozen Foods', icon: 'snowflake', label: 'Frozen (6)' },
+      { name: 'Household & Cleaning', icon: 'sparkles', label: 'Household (8)' },
+      { name: 'Personal Care', icon: 'smile', label: 'Personal Care (8)' }
+    ];
+
+    // ==========================================
+    // AUTHENTICATION & SECURE DATABASE MODULE
+    // ==========================================
+    let currentUser = null;
+    let currentAuthMode = 'login'; // 'login' | 'register'
+
+    // Application State
+    let currentStoreId = 'walmart';
+    let userBudget = 100.00;
+    let selectedCategory = 'All';
+    let cart = []; // Empty by default for new sessions
+
+    // Web Crypto PBKDF2 Password Hashing (100,000 iterations, SHA-256, 16-byte random salt)
+    async function pbkdf2Hash(password, saltHex) {
+      try {
+        const enc = new TextEncoder();
+        let salt;
+        if (saltHex) {
+          const matched = saltHex.match(/.{1,2}/g) || [];
+          salt = new Uint8Array(matched.map(b => parseInt(b, 16)));
+        } else {
+          salt = window.crypto.getRandomValues(new Uint8Array(16));
+        }
+        const keyMaterial = await window.crypto.subtle.importKey(
+          "raw",
+          enc.encode(password),
+          { name: "PBKDF2" },
+          false,
+          ["deriveBits", "deriveKey"]
+        );
+        const derivedKey = await window.crypto.subtle.deriveKey(
+          {
+            name: "PBKDF2",
+            salt: salt,
+            iterations: 100000,
+            hash: "SHA-256"
+          },
+          keyMaterial,
+          { name: "HMAC", hash: "SHA-256", length: 256 },
+          true,
+          ["sign"]
+        );
+        const exported = await window.crypto.subtle.exportKey("raw", derivedKey);
+        const hashHex = Array.from(new Uint8Array(exported)).map(b => b.toString(16).padStart(2, '0')).join('');
+        const saltHexOut = Array.from(salt).map(b => b.toString(16).padStart(2, '0')).join('');
+        return { hash: hashHex, salt: saltHexOut };
+      } catch (err) {
+        console.warn("Subtle crypto fallback:", err);
+        const saltStr = saltHex || Math.random().toString(36).substring(2, 18);
+        let hash = 0;
+        const str = password + saltStr;
+        for (let i = 0; i < str.length; i++) {
+          hash = Math.imul(31, hash) + str.charCodeAt(i) | 0;
+        }
+        return { hash: Math.abs(hash).toString(16).padStart(16, '0'), salt: saltStr };
+      }
+    }
+
+    // Database helper functions
+    const AuthDB = {
+      getUsers() {
+        try {
+          const data = localStorage.getItem('smart_grocery_users_v2');
+          return data ? JSON.parse(data) : [];
+        } catch(e) {
+          return [];
+        }
+      },
+      saveUsers(users) {
+        try {
+          localStorage.setItem('smart_grocery_users_v2', JSON.stringify(users));
+        } catch(e) {}
+      },
+      findUserByEmail(email) {
+        if (!email) return null;
+        const users = this.getUsers();
+        return users.find(u => u.email.toLowerCase() === email.trim().toLowerCase()) || null;
+      },
+      findUserById(id) {
+        if (!id) return null;
+        const users = this.getUsers();
+        return users.find(u => u.id === id) || null;
+      },
+      saveUser(user) {
+        const users = this.getUsers();
+        const idx = users.findIndex(u => u.id === user.id);
+        if (idx >= 0) {
+          users[idx] = user;
+        } else {
+          users.push(user);
+        }
+        this.saveUsers(users);
+      },
+      getSession() {
+        try {
+          const s = localStorage.getItem('smart_grocery_session_v2');
+          return s ? JSON.parse(s) : null;
+        } catch(e) {
+          return null;
+        }
+      },
+      saveSession(session) {
+        try {
+          localStorage.setItem('smart_grocery_session_v2', JSON.stringify(session));
+        } catch(e) {}
+      },
+      clearSession() {
+        try {
+          localStorage.removeItem('smart_grocery_session_v2');
+        } catch(e) {}
+      },
+      getUserData(userId) {
+        try {
+          const key = userId ? `smart_grocery_userdata_${userId}` : 'smart_grocery_guest_data';
+          const data = localStorage.getItem(key);
+          if (data) return JSON.parse(data);
+        } catch(e) {}
+        return {
+          cart: [],
+          budget: 100.00,
+          orders: []
+        };
+      },
+      saveUserData(userId, data) {
+        try {
+          const key = userId ? `smart_grocery_userdata_${userId}` : 'smart_grocery_guest_data';
+          localStorage.setItem(key, JSON.stringify(data));
+        } catch(e) {}
+      }
+    };
+
+    // Load active session on startup
+    function initAuthSession() {
+      // Purge legacy demo orders & demo data from prior sessions
+      try {
+        const oldOrders = localStorage.getItem('smart_grocery_orders');
+        if (oldOrders) {
+          const parsed = JSON.parse(oldOrders);
+          if (parsed.some(o => o.orderId === 'SG-82914' || (o.paymentMethod && o.paymentMethod.includes('Demo Card')) || o.status === 'Confirmed (Simulated)')) {
+            localStorage.removeItem('smart_grocery_orders');
+          }
+        }
+      } catch(e) {}
+
+      const session = AuthDB.getSession();
+      if (session && session.userId && session.expiresAt > Date.now()) {
+        const user = AuthDB.findUserById(session.userId);
+        if (user) {
+          currentUser = user;
+          loadActiveUserData(user.id);
+          return;
+        }
+      }
+      // If no valid session, load guest data
+      currentUser = null;
+      loadActiveUserData(null);
+    }
+
+    function loadActiveUserData(userId) {
+      const uData = AuthDB.getUserData(userId);
+      cart = Array.isArray(uData.cart) ? uData.cart : [];
+      userBudget = (typeof uData.budget === 'number' && uData.budget > 0) ? uData.budget : 100.00;
+      orderHistory = Array.isArray(uData.orders) ? uData.orders : [];
+      updateAuthUIState();
+    }
+
+    function persistActiveUserData() {
+      const data = {
+        cart: cart,
+        budget: userBudget,
+        orders: orderHistory
+      };
+      AuthDB.saveUserData(currentUser ? currentUser.id : null, data);
+    }
+
+    function saveCartState() {
+      persistActiveUserData();
+    }
+
+    // Toggle between Sign In and Create Account tabs
+    function setAuthMode(mode) {
+      currentAuthMode = mode;
+      const tabLogin = document.getElementById('auth-tab-login');
+      const tabRegister = document.getElementById('auth-tab-register');
+      const formLogin = document.getElementById('form-login');
+      const formRegister = document.getElementById('form-register');
+      const alertEl = document.getElementById('auth-alert');
+      if (alertEl) alertEl.classList.add('hidden');
+
+      if (mode === 'login') {
+        if (tabLogin) tabLogin.className = "flex-1 py-1.5 text-xs font-bold rounded-lg transition bg-white text-emerald-700 shadow-sm";
+        if (tabRegister) tabRegister.className = "flex-1 py-1.5 text-xs font-bold rounded-lg transition text-gray-600 hover:text-gray-900";
+        if (formLogin) formLogin.classList.remove('hidden');
+        if (formRegister) formRegister.classList.add('hidden');
+      } else {
+        if (tabRegister) tabRegister.className = "flex-1 py-1.5 text-xs font-bold rounded-lg transition bg-white text-emerald-700 shadow-sm";
+        if (tabLogin) tabLogin.className = "flex-1 py-1.5 text-xs font-bold rounded-lg transition text-gray-600 hover:text-gray-900";
+        if (formRegister) formRegister.classList.remove('hidden');
+        if (formLogin) formLogin.classList.add('hidden');
+      }
+      lucide.createIcons();
+    }
+
+    function showAuthAlert(msg, isSuccess = false) {
+      const alertEl = document.getElementById('auth-alert');
+      if (!alertEl) return;
+      alertEl.classList.remove('hidden');
+      if (isSuccess) {
+        alertEl.className = "p-3 rounded-xl text-xs font-medium border bg-emerald-50 text-emerald-800 border-emerald-200";
+      } else {
+        alertEl.className = "p-3 rounded-xl text-xs font-medium border bg-red-50 text-red-700 border-red-200";
+      }
+      alertEl.innerText = msg;
+    }
+
+    // Handle Create Account (Register) Form Submit
+    async function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value.trim();
+      const email = document.getElementById('reg-email').value.trim().toLowerCase();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const address = document.getElementById('reg-address').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const passwordConfirm = document.getElementById('reg-password-confirm').value;
+
+      if (!name) {
+        showAuthAlert("Please enter your full name.");
+        return;
+      }
+      if (!email || !/\S+@\S+\.\S+/.test(email)) {
+        showAuthAlert("Please enter a valid email address.");
+        return;
+      }
+      if (password.length < 6) {
+        showAuthAlert("Password must be at least 6 characters long.");
+        return;
+      }
+      if (password !== passwordConfirm) {
+        showAuthAlert("Passwords do not match. Please re-enter.");
+        return;
+      }
+
+      // Check if email already exists
+      const existing = AuthDB.findUserByEmail(email);
+      if (existing) {
+        showAuthAlert("An account with this email already exists. Please Sign In.");
+        return;
+      }
+
+      // Secure PBKDF2 hash with unique salt
+      const hashResult = await pbkdf2Hash(password);
+
+      const newUser = {
+        id: 'usr_' + Date.now() + Math.random().toString(36).substring(2, 6),
+        name: name,
+        email: email,
+        phone: phone,
+        address: address,
+        passwordHash: hashResult.hash,
+        salt: hashResult.salt,
+        createdAt: new Date().toISOString()
+      };
+
+      AuthDB.saveUser(newUser);
+
+      // Create session
+      const session = {
+        token: 'sess_' + Date.now(),
+        userId: newUser.id,
+        expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days
+      };
+      AuthDB.saveSession(session);
+
+      currentUser = newUser;
+      // Initialize fresh user data (cart empty by default)
+      cart = [];
+      userBudget = 100.00;
+      orderHistory = [];
+      persistActiveUserData();
+
+      updateAuthUIState();
+      renderCart();
+      renderProducts();
+      renderOrdersHistory();
+      updateBudgetUI();
+      renderAccountUI();
+      showAuthAlert("Account created successfully! Welcome to Smart Grocery AI.", true);
+      setTimeout(() => {
+        const al = document.getElementById('auth-alert');
+        if (al) al.classList.add('hidden');
+      }, 2500);
+    }
+
+    // Handle Sign In (Login) Form Submit
+    async function handleLoginSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim().toLowerCase();
+      const password = document.getElementById('login-password').value;
+
+      if (!email || !password) {
+        showAuthAlert("Please enter both email and password.");
+        return;
+      }
+
+      const user = AuthDB.findUserByEmail(email);
+      if (!user) {
+        showAuthAlert("No account found with this email. Please check or create an account.");
+        return;
+      }
+
+      // Compute PBKDF2 hash using user's stored salt
+      const computed = await pbkdf2Hash(password, user.salt);
+      if (computed.hash !== user.passwordHash) {
+        showAuthAlert("Incorrect password. Please try again.");
+        return;
+      }
+
+      // Login success: save session
+      const session = {
+        token: 'sess_' + Date.now(),
+        userId: user.id,
+        expiresAt: Date.now() + (30 * 24 * 60 * 60 * 1000)
+      };
+      AuthDB.saveSession(session);
+
+      currentUser = user;
+      loadActiveUserData(user.id);
+
+      renderCart();
+      renderProducts();
+      renderOrdersHistory();
+      updateBudgetUI();
+      renderAccountUI();
+      showAuthAlert("Signed in successfully! Welcome back, " + user.name + ".", true);
+      setTimeout(() => {
+        const al = document.getElementById('auth-alert');
+        if (al) al.classList.add('hidden');
+      }, 2000);
+    }
+
+    // Handle Log Out
+    function handleLogout() {
+      if (confirm("Are you sure you want to sign out?")) {
+        AuthDB.clearSession();
+        currentUser = null;
+        loadActiveUserData(null);
+        renderCart();
+        renderProducts();
+        renderOrdersHistory();
+        updateBudgetUI();
+        renderAccountUI();
+        switchTab('home');
+      }
+    }
+
+    // Update Profile Information
+    function handleUpdateProfile(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+      const name = document.getElementById('prof-name').value.trim();
+      const phone = document.getElementById('prof-phone').value.trim();
+      const address = document.getElementById('prof-address').value.trim();
+
+      if (!name) {
+        showProfileAlert("Full Name cannot be empty.", false);
+        return;
+      }
+
+      currentUser.name = name;
+      currentUser.phone = phone;
+      currentUser.address = address;
+      AuthDB.saveUser(currentUser);
+
+      updateAuthUIState();
+      renderAccountUI();
+      showProfileAlert("Profile information updated successfully!", true);
+    }
+
+    // Change Password
+    async function handleChangePassword(e) {
+      e.preventDefault();
+      if (!currentUser) return;
+      const currentPass = document.getElementById('cp-current').value;
+      const newPass = document.getElementById('cp-new').value;
+      const confirmPass = document.getElementById('cp-confirm').value;
+
+      const computed = await pbkdf2Hash(currentPass, currentUser.salt);
+      if (computed.hash !== currentUser.passwordHash) {
+        showProfileAlert("Current password is incorrect.", false);
+        return;
+      }
+      if (newPass.length < 6) {
+        showProfileAlert("New password must be at least 6 characters long.", false);
+        return;
+      }
+      if (newPass !== confirmPass) {
+        showProfileAlert("New passwords do not match.", false);
+        return;
+      }
+
+      const newHashResult = await pbkdf2Hash(newPass);
+      currentUser.passwordHash = newHashResult.hash;
+      currentUser.salt = newHashResult.salt;
+      AuthDB.saveUser(currentUser);
+
+      document.getElementById('form-change-password').reset();
+      showProfileAlert("Password changed successfully!", true);
+    }
+
+    function showProfileAlert(msg, isSuccess = false) {
+      const alertEl = document.getElementById('profile-alert');
+      if (!alertEl) return;
+      alertEl.classList.remove('hidden');
+      if (isSuccess) {
+        alertEl.className = "p-3 rounded-xl text-xs font-medium border bg-emerald-50 text-emerald-800 border-emerald-200";
+      } else {
+        alertEl.className = "p-3 rounded-xl text-xs font-medium border bg-red-50 text-red-700 border-red-200";
+      }
+      alertEl.innerText = msg;
+      setTimeout(() => {
+        alertEl.classList.add('hidden');
+      }, 3500);
+    }
+
+    // Update Global UI elements reflecting auth state
+    function updateAuthUIState() {
+      const welcomeText = document.getElementById('home-welcome-text');
+      const welcomeSub = document.getElementById('home-welcome-sub');
+      const authBadge = document.getElementById('header-auth-badge');
+      const accountBadge = document.getElementById('account-auth-status-badge');
+      const checkoutAuth = document.getElementById('checkout-auth-indicator');
+      const chatGreeting = document.getElementById('chat-ai-greeting-text');
+
+      if (currentUser) {
+        if (welcomeText) welcomeText.innerText = `Welcome back, ${currentUser.name} 👋`;
+        if (welcomeSub) welcomeSub.innerText = "All your grocery lists, budget preferences & orders are synced.";
+        if (authBadge) authBadge.classList.remove('hidden');
+        if (accountBadge) {
+          accountBadge.innerText = "Signed In";
+          accountBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
+        }
+        if (checkoutAuth) {
+          checkoutAuth.innerText = `Signed In: ${currentUser.name}`;
+          checkoutAuth.className = "text-[9px] text-emerald-700 font-bold";
+        }
+        if (chatGreeting) {
+          chatGreeting.innerHTML = `Hello <strong>${currentUser.name}</strong>! 👋 I'm your Smart Grocery Assistant. I can help you search our 110 items, manage your shopping list, or verify store pricing feeds.`;
+        }
+
+        // Prefill checkout fields
+        const cName = document.getElementById('cust-name');
+        const cPhone = document.getElementById('cust-phone');
+        const cEmail = document.getElementById('cust-email');
+        const cAddr = document.getElementById('cust-address');
+        if (cName && !cName.value) cName.value = currentUser.name || '';
+        if (cPhone && !cPhone.value) cPhone.value = currentUser.phone || '';
+        if (cEmail && !cEmail.value) cEmail.value = currentUser.email || '';
+        if (cAddr && !cAddr.value) cAddr.value = currentUser.address || '';
+      } else {
+        if (welcomeText) welcomeText.innerText = "Welcome, Guest 👋";
+        if (welcomeSub) welcomeSub.innerText = "Sign in to sync your grocery lists, budget tracker & orders.";
+        if (authBadge) authBadge.classList.add('hidden');
+        if (accountBadge) {
+          accountBadge.innerText = "Guest Mode";
+          accountBadge.className = "text-[10px] font-bold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600";
+        }
+        if (checkoutAuth) {
+          checkoutAuth.innerText = "Guest Mode (Local)";
+          checkoutAuth.className = "text-[9px] text-gray-500 font-medium";
+        }
+        if (chatGreeting) {
+          chatGreeting.innerText = "Hello! 👋 I'm your Smart Grocery Assistant. I can help you search 110 grocery items, plan shopping lists, and track your budget.";
+        }
+      }
+    }
+
+    // Render Account Screen UI (switch between guest form and profile card)
+    function renderAccountUI() {
+      const guestView = document.getElementById('account-guest-view');
+      const userView = document.getElementById('account-user-view');
+      if (!guestView || !userView) return;
+
+      if (!currentUser) {
+        guestView.classList.remove('hidden');
+        userView.classList.add('hidden');
+        setAuthMode(currentAuthMode);
+      } else {
+        guestView.classList.add('hidden');
+        userView.classList.remove('hidden');
+
+        // Populate profile card
+        const nameEl = document.getElementById('user-profile-name');
+        const emailEl = document.getElementById('user-profile-email');
+        const initialsEl = document.getElementById('user-avatar-initials');
+        const metricCart = document.getElementById('user-metric-cart');
+        const metricBudget = document.getElementById('user-metric-budget');
+        const metricOrders = document.getElementById('user-metric-orders');
+
+        if (nameEl) nameEl.innerText = currentUser.name;
+        if (emailEl) emailEl.innerText = currentUser.email;
+        if (initialsEl) {
+          const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+          initialsEl.innerText = initials || 'U';
+        }
+
+        const totalItems = cart.reduce((s, i) => s + (i.qty || 1), 0);
+        if (metricCart) metricCart.innerText = totalItems;
+        if (metricBudget) metricBudget.innerText = `$${userBudget.toFixed(0)}`;
+        if (metricOrders) metricOrders.innerText = orderHistory.length;
+
+        // Prefill profile edit inputs
+        const pName = document.getElementById('prof-name');
+        const pPhone = document.getElementById('prof-phone');
+        const pAddress = document.getElementById('prof-address');
+        if (pName) pName.value = currentUser.name || '';
+        if (pPhone) pPhone.value = currentUser.phone || '';
+        if (pAddress) pAddress.value = currentUser.address || '';
+
+      }
+      lucide.createIcons();
+    }
+
+    // Initialization
+    document.addEventListener('DOMContentLoaded', () => {
+      initAuthSession();
+      renderCategoryChips();
+      renderStoresList();
+      renderHomeQuickStores();
+      updateStoreHeaderUI();
+      renderProducts();
+      renderDeals();
+      renderCart();
+      updateBudgetUI();
+      renderAccountUI();
+      lucide.createIcons();
+    });
+
+    // Render Category Chips dynamically with Icons
+    function renderCategoryChips() {
+      const container = document.getElementById('category-chips');
+      if (!container) return;
+      container.innerHTML = CATEGORIES.map(cat => {
+        const isActive = cat.name === selectedCategory;
+        return `
+          <button onclick="setCategory('${cat.name}')" class="cat-chip flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full whitespace-nowrap transition ${isActive ? 'active bg-emerald-600 text-white shadow-sm' : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-100'}">
+            <i data-lucide="${cat.icon}" class="w-3.5 h-3.5"></i>
+            <span>${cat.label}</span>
+          </button>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    // Get Active Store Object
+    function getActiveStore() {
+      return STORES.find(s => s.id === currentStoreId) || STORES[0];
+    }
+
+    // Switch Selected Store
+    function selectStore(storeId) {
+      currentStoreId = storeId;
+      updateStoreHeaderUI();
+      renderHomeQuickStores();
+      renderStoresList();
+      renderDeals();
+      renderProducts();
+      renderCart(); // recalculate/refresh list with new store context
+      lucide.createIcons();
+    }
+
+    function updateStoreHeaderUI() {
+      const store = getActiveStore();
+      
+      const homeStoreTag = document.getElementById('home-store-tag');
+      if (homeStoreTag) homeStoreTag.innerText = store.name;
+
+      const homeDealsStore = document.getElementById('home-deals-store');
+      if (homeDealsStore) homeDealsStore.innerText = store.name;
+
+      const finderStoreLabel = document.getElementById('finder-store-label');
+      if (finderStoreLabel) finderStoreLabel.innerText = store.fullName;
+    }
+
+    // Render Quick Store Switcher on Home Dashboard
+    function renderHomeQuickStores() {
+      const container = document.getElementById('home-quick-stores');
+      container.innerHTML = STORES.map(s => {
+        const isSelected = s.id === currentStoreId;
+        return `
+          <button onclick="selectStore('${s.id}')" class="p-2 rounded-xl text-center border transition flex flex-col items-center justify-center ${isSelected ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm' : 'bg-gray-50 hover:bg-gray-100 text-gray-700 border-gray-200'}">
+            <span class="text-[11px] font-bold leading-tight truncate w-full">${s.name}</span>
+            <span class="text-[9px] opacity-75 mt-0.5">${isSelected ? 'Active' : s.distance.split(' ')[0]}</span>
+          </button>
+        `;
+      }).join('');
+    }
+
+    // Render Full Stores Screen
+    function renderStoresList() {
+      const container = document.getElementById('stores-list-container');
+      container.innerHTML = STORES.map(store => {
+        const isSelected = store.id === currentStoreId;
+        return `
+          <div class="bg-white rounded-2xl p-4 border transition ${isSelected ? 'border-emerald-500 ring-2 ring-emerald-500/20 shadow-md' : 'border-gray-200 shadow-sm'}">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr ${store.color} text-white font-extrabold flex items-center justify-center text-sm shadow">
+                  ${store.logoText}
+                </div>
+                <div>
+                  <div class="flex items-center gap-1.5">
+                    <h3 class="font-bold text-sm text-gray-900">${store.fullName}</h3>
+                    ${isSelected ? '<span class="text-[9px] bg-emerald-100 text-emerald-800 font-extrabold px-1.5 py-0.5 rounded">SELECTED</span>' : ''}
+                  </div>
+                  <p class="text-xs text-gray-500 mt-0.5">${store.tagline}</p>
+                </div>
+              </div>
+              <span class="text-[11px] font-semibold text-gray-400">${store.distance}</span>
+            </div>
+
+            <div class="mt-3.5 pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1 text-[11px] text-gray-500">
+                  <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i> Prototype Stock
+                </span>
+              </div>
+              ${isSelected ? `
+                <button onclick="switchTab('products')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 transition">
+                  Shop Store <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+                </button>
+              ` : `
+                <button onclick="selectStore('${store.id}')" class="bg-gray-100 hover:bg-emerald-50 hover:text-emerald-700 text-gray-700 font-bold px-3 py-1.5 rounded-xl text-xs transition">
+                  Switch to Store
+                </button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    // Navigation Switcher
+    function switchTab(tabId) {
+      const screens = ['home', 'stores', 'products', 'cart', 'budget', 'chat', 'checkout', 'confirmation', 'orders', 'multi-compare', 'account'];
+      screens.forEach(s => {
+        const el = document.getElementById(`screen-${s}`);
+        if (el) el.classList.add('hidden');
+        const navBtn = document.getElementById(`nav-${s}`);
+        if (navBtn) {
+          navBtn.classList.remove('text-emerald-600', 'font-bold');
+          navBtn.classList.add('text-gray-400', 'font-medium');
+        }
+        const topNavBtn = document.getElementById(`top-nav-${s}`);
+        if (topNavBtn) {
+          topNavBtn.classList.remove('bg-emerald-700/80', 'text-white', 'font-bold');
+          topNavBtn.classList.add('text-emerald-100', 'font-semibold');
+        }
+      });
+
+      const targetScreen = document.getElementById(`screen-${tabId}`);
+      if (targetScreen) targetScreen.classList.remove('hidden');
+
+      const activeNav = document.getElementById(`nav-${tabId}`);
+      if (activeNav) {
+        activeNav.classList.remove('text-gray-400', 'font-medium');
+        activeNav.classList.add('text-emerald-600', 'font-bold');
+      }
+
+      const activeTopNav = document.getElementById(`top-nav-${tabId}`);
+      if (activeTopNav) {
+        activeTopNav.classList.remove('text-emerald-100', 'font-semibold');
+        activeTopNav.classList.add('bg-emerald-700/80', 'text-white', 'font-bold');
+      }
+
+      // Scroll content view smoothly to top on tab switch
+      const mainContent = document.getElementById('app-content');
+      if (mainContent) mainContent.scrollTop = 0;
+
+      if (tabId === 'checkout') {
+        renderCheckout();
+      } else if (tabId === 'orders') {
+        renderOrdersHistory();
+      } else if (tabId === 'multi-compare') {
+        renderMultiStoreComparison();
+      } else if (tabId === 'account') {
+        renderAccountUI();
+      } else if (tabId === 'cart') {
+        renderCart();
+      } else if (tabId === 'products') {
+        renderProducts();
+      }
+
+      lucide.createIcons();
+    }
+
+    // Direct helper to trigger and display multi-store comparison
+    function openMultiStoreComparison() {
+      switchTab('multi-compare');
+      renderMultiStoreComparison();
+      const mainContent = document.getElementById('app-content');
+      if (mainContent) mainContent.scrollTop = 0;
+    }
+
+    // Render Deals Carousel based on Active Store (Prototype Data)
+    function renderDeals() {
+      const container = document.getElementById('deals-carousel');
+      if (!container) return;
+
+      const deals = STORE_DEALS[currentStoreId] || STORE_DEALS.walmart;
+      container.innerHTML = deals.map(deal => `
+        <div class="shrink-0 w-52 bg-gradient-to-r ${deal.bg} text-white rounded-xl p-3 shadow-sm relative overflow-hidden">
+          <div class="text-[10px] uppercase font-extrabold tracking-wider bg-black/20 text-white px-2 py-0.5 rounded w-max">${deal.code}</div>
+          <h4 class="font-bold text-xs mt-2">${deal.title}</h4>
+          <p class="text-[10px] opacity-90 mt-0.5">${deal.desc}</p>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    // Render Products Grid for current store (Supports all 110 items)
+    function renderProducts(itemsToRender = MASTER_PRODUCTS) {
+      const grid = document.getElementById('product-grid');
+      if (!grid) return;
+      const currentStore = getActiveStore();
+
+      grid.innerHTML = itemsToRender.map(p => {
+        const storeInfo = (p.storeData && p.storeData[currentStoreId]) ? p.storeData[currentStoreId] : { price: 3.49, available: true, unit: p.unit || '1 unit' };
+        const isAvail = storeInfo.available;
+        const altPrice = (p.alternative && p.alternative.priceByStore && p.alternative.priceByStore[currentStoreId]) 
+          ? p.alternative.priceByStore[currentStoreId] 
+          : Number((storeInfo.price * 0.8).toFixed(2));
+        const categoryIcon = p.icon || 'tag';
+
+        // Check if item already exists in shopping list
+        const inCartItem = cart.find(ci => ci.productId === p.id && ci.store === currentStoreId);
+        const inCartQty = inCartItem ? inCartItem.qty : 0;
+
+        return `
+          <div class="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm flex flex-col justify-between hover:border-emerald-300 transition">
+            <div class="p-3 pb-0 flex items-start justify-between">
+              <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md">
+                <i data-lucide="${categoryIcon}" class="w-3 h-3 text-emerald-600"></i>
+                <span class="truncate max-w-[85px]">${p.category}</span>
+              </span>
+              <button onclick="openCompareModal('${p.id}')" class="text-gray-500 hover:text-emerald-700 bg-gray-100 hover:bg-emerald-50 px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 transition" title="Compare Store Prices">
+                <i data-lucide="scale" class="w-3 h-3 text-emerald-600"></i> Compare
+              </button>
+            </div>
+
+            <div class="p-3 flex-1 flex flex-col justify-between space-y-2">
+              <div>
+                <h4 class="font-bold text-xs text-gray-900 line-clamp-1 mt-1">${p.name}</h4>
+                <div class="flex items-baseline justify-between mt-1">
+                  <div>
+                    <span class="text-sm font-extrabold text-emerald-600">$${storeInfo.price.toFixed(2)}</span>
+                    <span class="text-[10px] text-gray-400 block">${storeInfo.unit}</span>
+                  </div>
+                  ${!isAvail ? '<span class="bg-red-50 text-red-600 border border-red-200 font-bold text-[9px] px-1.5 py-0.5 rounded uppercase">Out of Stock</span>' : '<span class="bg-emerald-50 text-emerald-700 font-semibold text-[9px] px-1.5 py-0.5 rounded">In Stock</span>'}
+                </div>
+              </div>
+
+              ${!isAvail ? `
+                <div class="bg-amber-50 p-2 rounded-xl border border-amber-200 text-[10px] text-amber-900 space-y-1">
+                  <p class="font-bold text-amber-800 flex items-center gap-1">
+                    <i data-lucide="sparkles" class="w-3 h-3 text-amber-600"></i> AI Alternative:
+                  </p>
+                  <p class="line-clamp-1 font-semibold">${p.alternative.name} ($${altPrice.toFixed(2)})</p>
+                  <button onclick="addAltToCart('${p.alternative.name}', ${altPrice}, '${p.id}')" class="w-full bg-amber-400 hover:bg-amber-500 text-emerald-950 font-bold py-1.5 rounded-lg text-[10px] mt-1 shadow-sm transition">
+                    + Add Alternative
+                  </button>
+                </div>
+              ` : `
+                <div class="space-y-1 pt-1">
+                  ${inCartQty > 0 ? `
+                    <div class="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-xl px-2 py-1">
+                      <span class="text-[11px] font-bold text-emerald-800">In List: ${inCartQty}</span>
+                      <div class="flex items-center gap-1">
+                        <button onclick="changeCartItemQty('${inCartItem.id}', -1)" class="w-5 h-5 bg-white rounded border border-emerald-300 font-bold text-xs text-emerald-800 flex items-center justify-center hover:bg-emerald-100">-</button>
+                        <button onclick="changeCartItemQty('${inCartItem.id}', 1)" class="w-5 h-5 bg-emerald-600 text-white rounded font-bold text-xs flex items-center justify-center hover:bg-emerald-700">+</button>
+                      </div>
+                    </div>
+                  ` : `
+                    <button onclick="addToCart('${p.id}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-1.5 rounded-xl text-xs flex items-center justify-center gap-1 transition shadow-sm">
+                      <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add to Shopping List
+                    </button>
+                  `}
+                </div>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    // Filter Products by Category or Search
+    function filterProducts() {
+      const query = document.getElementById('product-search').value.toLowerCase().trim();
+      const filtered = MASTER_PRODUCTS.filter(p => {
+        const matchesCategory = (selectedCategory === 'All') || (p.category === selectedCategory);
+        const matchesQuery = !query || p.name.toLowerCase().includes(query) || p.category.toLowerCase().includes(query);
+        return matchesCategory && matchesQuery;
+      });
+      renderProducts(filtered);
+    }
+
+    function setCategory(cat) {
+      selectedCategory = cat;
+      renderCategoryChips();
+      filterProducts();
+    }
+
+    function handleSearch(val) {
+      const pSearch = document.getElementById('product-search');
+      if (pSearch) pSearch.value = val;
+      switchTab('products');
+      filterProducts();
+    }
+
+    // Multi-Store Price Comparison Modal Logic
+    function openCompareModal(productId) {
+      const product = MASTER_PRODUCTS.find(p => p.id === productId);
+      if (!product) return;
+
+      document.getElementById('compare-modal-title').innerText = product.name;
+      const listContainer = document.getElementById('compare-modal-list');
+
+      let lowestPrice = Infinity;
+      let lowestStoreName = '';
+
+      STORES.forEach(s => {
+        const itemInfo = product.storeData ? product.storeData[s.id] : null;
+        if (itemInfo && itemInfo.price < lowestPrice) {
+          lowestPrice = itemInfo.price;
+          lowestStoreName = s.name;
+        }
+      });
+
+      listContainer.innerHTML = STORES.map(s => {
+        const info = (product.storeData && product.storeData[s.id]) ? product.storeData[s.id] : { price: 3.49, available: true, unit: '1 unit' };
+        const isCurrent = s.id === currentStoreId;
+        const isBestDeal = (info.price === lowestPrice);
+
+        return `
+          <div class="p-2.5 rounded-xl border flex items-center justify-between ${isBestDeal ? 'bg-emerald-50 border-emerald-300' : 'bg-gray-50 border-gray-200'}">
+            <div class="flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-lg ${s.badgeBg} text-white font-bold flex items-center justify-center text-[10px]">
+                ${s.logoText}
+              </div>
+              <div>
+                <div class="flex items-center gap-1.5">
+                  <span class="font-bold text-xs text-gray-800">${s.name}</span>
+                  ${isBestDeal ? '<span class="text-[9px] bg-emerald-600 text-white font-extrabold px-1 rounded">BEST PRICE</span>' : ''}
+                  ${isCurrent ? '<span class="text-[9px] bg-blue-100 text-blue-700 font-semibold px-1 rounded">Active</span>' : ''}
+                </div>
+                <span class="text-[10px] text-gray-500">${info.unit} · ${info.available ? '<span class="text-emerald-600 font-medium">In Stock</span>' : '<span class="text-red-500 font-medium">Out of Stock</span>'}</span>
+              </div>
+            </div>
+            <div class="text-right flex flex-col items-end">
+              <span class="text-sm font-extrabold ${isBestDeal ? 'text-emerald-700' : 'text-gray-800'}">$${info.price.toFixed(2)}</span>
+              <button onclick="addCompareItemToCart('${product.id}', '${s.id}')" class="text-[10px] font-bold text-emerald-600 hover:underline mt-0.5">
+                Add at $${info.price.toFixed(2)}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const verdictEl = document.getElementById('compare-ai-verdict');
+      if (verdictEl) {
+        verdictEl.innerHTML = `<strong>AI Insight:</strong> ${lowestStoreName} offers the lowest price for ${product.name} at <strong>$${lowestPrice.toFixed(2)}</strong>.`;
+      }
+
+      document.getElementById('compare-modal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeCompareModal() {
+      document.getElementById('compare-modal').classList.add('hidden');
+    }
+
+    function addCompareItemToCart(productId, storeId) {
+      const product = MASTER_PRODUCTS.find(p => p.id === productId);
+      const store = STORES.find(s => s.id === storeId);
+      if (product && store) {
+        const info = product.storeData ? product.storeData[storeId] : { price: 3.49 };
+        const priceToUse = info.price;
+        const altPrice = (product.alternative && product.alternative.priceByStore) ? product.alternative.priceByStore[storeId] : Number((info.price * 0.8).toFixed(2));
+
+        const existing = cart.find(ci => ci.productId === productId && ci.store === storeId);
+        if (existing) {
+          existing.qty += 1;
+        } else {
+          cart.push({
+            id: Date.now().toString(),
+            productId: product.id,
+            name: `${product.name} (${store.name})`,
+            price: priceToUse,
+            qty: 1,
+            store: storeId,
+            checked: false,
+            hasAlt: !!product.alternative,
+            showAlt: false,
+            alt: product.alternative ? { name: `${product.alternative.name} (${store.name})`, price: altPrice } : null
+          });
+        }
+        closeCompareModal();
+        saveCartState();
+        renderCart();
+        renderProducts();
+        switchTab('cart');
+      }
+    }
+
+    // Cart Management: Add, Quantity, Remove, Check/Purchased
+    function addToCart(productId) {
+      const product = MASTER_PRODUCTS.find(p => p.id === productId);
+      const store = getActiveStore();
+      if (product) {
+        const storeInfo = (product.storeData && product.storeData[currentStoreId]) ? product.storeData[currentStoreId] : { price: 3.49 };
+        const priceToUse = storeInfo.price;
+        const altPrice = (product.alternative && product.alternative.priceByStore) ? product.alternative.priceByStore[currentStoreId] : Number((storeInfo.price * 0.8).toFixed(2));
+
+        const existing = cart.find(ci => ci.productId === productId && ci.store === currentStoreId);
+        if (existing) {
+          existing.qty += 1;
+        } else {
+          cart.push({
+            id: Date.now().toString(),
+            productId: product.id,
+            name: `${product.name} (${store.name})`,
+            price: priceToUse,
+            qty: 1,
+            store: currentStoreId,
+            checked: false,
+            hasAlt: !!product.alternative,
+            showAlt: false,
+            alt: product.alternative ? { name: `${product.alternative.name} (${store.name})`, price: altPrice } : null
+          });
+        }
+        saveCartState();
+        renderCart();
+        renderProducts();
+      }
+    }
+
+    function addAltToCart(altName, altPrice, originId) {
+      const store = getActiveStore();
+      cart.push({
+        id: Date.now().toString(),
+        productId: originId || 'alt',
+        name: `${altName} (${store.name})`,
+        price: altPrice,
+        qty: 1,
+        store: currentStoreId,
+        checked: false,
+        isAlternativeAdded: true
+      });
+      saveCartState();
+      renderCart();
+      renderProducts();
+      switchTab('cart');
+    }
+
+    function changeCartItemQty(id, delta) {
+      const item = cart.find(i => i.id === id);
+      if (item) {
+        item.qty += delta;
+        if (item.qty <= 0) {
+          cart = cart.filter(i => i.id !== id);
+        }
+        renderCart();
+        renderProducts();
+      }
+    }
+
+    function addCustomItem(e) {
+      e.preventDefault();
+      const nameInput = document.getElementById('custom-item-name');
+      const priceInput = document.getElementById('custom-item-price');
+      const store = getActiveStore();
+
+      cart.push({
+        id: Date.now().toString(),
+        productId: 'custom',
+        name: `${nameInput.value} (${store.name})`,
+        price: parseFloat(priceInput.value) || 2.50,
+        qty: 1,
+        store: currentStoreId,
+        checked: false
+      });
+
+      nameInput.value = '';
+      priceInput.value = '';
+      renderCart();
+      renderProducts();
+    }
+
+    function toggleCheckItem(id) {
+      const item = cart.find(i => i.id === id);
+      if (item) item.checked = !item.checked;
+      renderCart();
+    }
+
+    function removeItem(id) {
+      cart = cart.filter(i => i.id !== id);
+      renderCart();
+      renderProducts();
+    }
+
+    function clearCheckedItems() {
+      cart = cart.filter(i => !i.checked);
+      renderCart();
+      renderProducts();
+    }
+
+    function toggleAlternatives(cartItemId) {
+      const item = cart.find(i => i.id === cartItemId);
+      if (item) {
+        item.showAlt = !item.showAlt;
+        renderCart();
+      }
+    }
+
+    function swapWithAIAlt(cartItemId) {
+      const item = cart.find(i => i.id === cartItemId);
+      if (item && item.alt) {
+        item.name = item.alt.name;
+        item.price = item.alt.price;
+        item.hasAlt = false;
+        item.showAlt = false;
+        renderCart();
+        renderProducts();
+      }
+    }
+
+    // Render Shopping List Cart with Quantity Controls and Purchased Marks
+    function renderCart() {
+      saveCartState();
+      const container = document.getElementById('shopping-list-container');
+      const cartBadge = document.getElementById('cart-badge');
+      const homeListCount = document.getElementById('home-list-count');
+      const homeListPreview = document.getElementById('home-list-preview');
+
+      const totalItemsCount = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+      cartBadge.innerText = totalItemsCount;
+      homeListCount.innerText = totalItemsCount;
+
+      // Home preview (First 3 items)
+      if (cart.length === 0) {
+        homeListPreview.innerHTML = '<p class="text-gray-400 italic">Your list is currently empty.</p>';
+      } else {
+        homeListPreview.innerHTML = cart.slice(0, 3).map(i => `
+          <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg">
+            <span class="${i.checked ? 'line-through text-gray-400' : 'text-gray-700 font-medium'} truncate max-w-[65%]">
+              ${i.checked ? '✓ ' : ''}${i.qty > 1 ? `(${i.qty}x) ` : ''}${i.name}
+            </span>
+            <span class="font-bold text-gray-800">$${(i.price * (i.qty || 1)).toFixed(2)}</span>
+          </div>
+        `).join('');
+      }
+
+      // Full Shopping List Screen
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-gray-400 bg-white rounded-2xl border border-gray-100 p-6">
+            <i data-lucide="shopping-bag" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
+            <p class="text-xs font-semibold">Your shopping list is empty</p>
+            <p class="text-[11px] text-gray-400 mt-1">Browse 110 grocery items in 12 categories!</p>
+            <button onclick="switchTab('products')" class="mt-3 text-xs bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl">Explore Products</button>
+          </div>
+        `;
+      } else {
+        container.innerHTML = cart.map(item => {
+          const qty = item.qty || 1;
+          const itemTotal = (item.price * qty).toFixed(2);
+
+          return `
+            <div class="bg-white rounded-xl p-3 border ${item.checked ? 'border-gray-200 bg-gray-50/60 opacity-80' : 'border-gray-200'} shadow-sm space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2.5 flex-1 min-w-0">
+                  <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleCheckItem('${item.id}')" class="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500 cursor-pointer">
+                  <div class="min-w-0">
+                    <span class="text-xs font-bold text-gray-800 truncate block ${item.checked ? 'line-through text-gray-400' : ''}">${item.name}</span>
+                    <span class="text-[10px] text-gray-400">$${item.price.toFixed(2)} ea ${item.checked ? '· <span class="text-emerald-600 font-bold">Purchased</span>' : ''}</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <!-- Quantity Changer Controls -->
+                  <div class="flex items-center border border-gray-200 rounded-lg bg-gray-50">
+                    <button onclick="changeCartItemQty('${item.id}', -1)" class="w-6 h-6 flex items-center justify-center font-bold text-xs text-gray-600 hover:bg-gray-200 rounded-l">-</button>
+                    <span class="px-2 text-xs font-bold text-gray-800">${qty}</span>
+                    <button onclick="changeCartItemQty('${item.id}', 1)" class="w-6 h-6 flex items-center justify-center font-bold text-xs text-gray-600 hover:bg-gray-200 rounded-r">+</button>
+                  </div>
+
+                  <span class="text-xs font-extrabold text-emerald-600 w-14 text-right">$${itemTotal}</span>
+                  <button onclick="removeItem('${item.id}')" class="text-gray-400 hover:text-red-500 p-1" title="Remove item">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+
+              ${item.hasAlt && !item.checked ? `
+                <div class="pt-1 border-t border-gray-100 flex items-center justify-between">
+                  <button type="button" onclick="toggleAlternatives('${item.id}')" class="text-[10px] font-bold text-amber-700 hover:text-amber-800 flex items-center gap-1">
+                    <i data-lucide="sparkles" class="w-3 h-3 text-amber-500"></i>
+                    <span>${item.showAlt ? 'Hide Alternatives' : 'Find Cheaper Options'}</span>
+                  </button>
+                  ${item.showAlt ? '<span class="text-[9px] text-gray-400">Optional swap</span>' : ''}
+                </div>
+
+                ${item.showAlt ? `
+                  <div class="bg-amber-50 rounded-lg p-2.5 border border-amber-200/80 flex items-center justify-between">
+                    <div class="text-[10px] text-amber-900">
+                      <span class="font-bold flex items-center gap-1">
+                        <i data-lucide="tag" class="w-3 h-3 text-amber-600"></i> Cheaper Alternative:
+                      </span>
+                      <span class="text-amber-800 font-medium">${item.alt.name} ($${item.alt.price.toFixed(2)} ea)</span>
+                    </div>
+                    <button type="button" onclick="swapWithAIAlt('${item.id}')" class="bg-amber-400 hover:bg-amber-500 text-emerald-950 font-bold text-[10px] px-2.5 py-1 rounded-md shadow-sm">
+                      Swap & Save
+                    </button>
+                  </div>
+                ` : ''}
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      }
+
+      updateBudgetUI();
+      lucide.createIcons();
+    }
+
+    // Budget Tracker Calculations
+    function updateBudgetGoal() {
+      const val = parseFloat(document.getElementById('budget-input').value);
+      if (val && val > 0) {
+        userBudget = val;
+        updateBudgetUI();
+      }
+    }
+
+    function updateBudgetUI() {
+      const totalSpent = cart.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0);
+      const remaining = userBudget - totalSpent;
+      const spentPercent = Math.min(100, Math.round((totalSpent / userBudget) * 100));
+
+      document.getElementById('home-budget-remaining').innerText = `$${Math.max(0, remaining).toFixed(2)}`;
+      document.getElementById('home-budget-total').innerText = `$${userBudget.toFixed(2)}`;
+
+      document.getElementById('cart-subtotal').innerText = `$${totalSpent.toFixed(2)}`;
+      document.getElementById('cart-remaining-budget').innerText = `$${remaining.toFixed(2)}`;
+      document.getElementById('cart-remaining-budget').className = remaining < 0 ? 'font-bold text-red-600' : 'font-bold text-emerald-600';
+
+      const alertBox = document.getElementById('cart-budget-alert');
+      if (remaining < 0) {
+        alertBox.classList.remove('hidden');
+      } else {
+        alertBox.classList.add('hidden');
+      }
+
+      document.getElementById('budget-spent-val').innerText = `$${totalSpent.toFixed(2)}`;
+      document.getElementById('budget-remaining-val').innerText = `$${remaining.toFixed(2)}`;
+      document.getElementById('budget-spent-percent').innerText = `${spentPercent}%`;
+
+      const ring = document.getElementById('budget-progress-ring');
+      if (ring) {
+        ring.setAttribute('stroke-dasharray', `${spentPercent}, 100`);
+        ring.setAttribute('class', spentPercent > 100 ? 'text-red-500 stroke-current transition-all duration-500' : 'text-emerald-500 stroke-current transition-all duration-500');
+      }
+    }
+
+    // AI Chat Assistant
+    function sendQuickChat(msg) {
+      document.getElementById('chat-input').value = msg;
+      handleChatSubmit(new Event('submit'));
+    }
+
+    function handleChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('chat-input');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const chatContainer = document.getElementById('chat-messages');
+
+      // User Message
+      chatContainer.innerHTML += `
+        <div class="flex gap-2 items-start justify-end">
+          <div class="bg-emerald-600 text-white rounded-2xl rounded-tr-none p-3 max-w-[85%] shadow-sm">
+            ${text}
+          </div>
+        </div>
+      `;
+
+      input.value = '';
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      // Simulated Multi-Store AI Response
+      setTimeout(() => {
+        let aiReply = "I can compare prices across Walmart, Chalo FreshCo, No Frills, and Costco or help you plan grocery shopping within your budget!";
+        const lower = text.toLowerCase();
+
+        if (lower.includes('compare') || lower.includes('cheapest') || lower.includes('milk') || lower.includes('egg')) {
+          aiReply = `
+            📊 <strong>Multi-Store Price Comparison (Milk & Eggs):</strong><br>
+            • <strong>No Frills:</strong> Eggs $2.99 (Flyer) | Milk $3.89<br>
+            • <strong>Walmart:</strong> Eggs $3.88 | Milk $4.49<br>
+            • <strong>Chalo FreshCo:</strong> Eggs $3.69 | Milk $3.99<br>
+            • <strong>Costco:</strong> Eggs $7.49 (30-pack bulk = $3.00/doz)<br><br>
+            💡 <em>AI Recommendation:</em> Buy single dozen eggs at <strong>No Frills</strong> ($2.99), or bulk 30 eggs at <strong>Costco</strong> for maximum long-term unit savings!
+          `;
+        } else if (lower.includes('freshco') || lower.includes('chalo')) {
+          aiReply = `
+            🏷️ <strong>Chalo FreshCo Highlights:</strong><br>
+            • Premium Basmati Rice 10lb at <strong>$11.99</strong> (Cheapest in flyer)<br>
+            • Fresh Alphonso Mango discounts & Paneer/Dahi deals.<br>
+            • Would you like me to switch your active store to Chalo FreshCo?
+            <br><button onclick="selectStore('freshco'); switchTab('products');" class="mt-2 bg-orange-500 text-white font-bold px-2.5 py-1 rounded text-[10px]">Switch to Chalo FreshCo</button>
+          `;
+        } else if (lower.includes('no frills') || lower.includes('dinner')) {
+          aiReply = `
+            🥗 <strong>$15 No Frills Budget Dinner Plan:</strong><br>
+            1. No Name Large Eggs ($2.99)<br>
+            2. Whole Wheat Bread Loaf ($1.89)<br>
+            3. Fresh Red Apples 1 lb ($2.49)<br>
+            4. Fresh Baby Spinach ($2.79)<br>
+            5. Plain Yogurt 750g ($2.99)<br>
+            <strong>Total: $13.15</strong> (Under $15 budget!)<br>
+            <button onclick="addNoFrillsMealPlan()" class="mt-2 bg-emerald-600 text-white font-bold px-3 py-1 rounded text-[10px]">Add All to Shopping List</button>
+          `;
+        } else if (lower.includes('costco') || lower.includes('bulk')) {
+          aiReply = `
+            📦 <strong>Costco Wholesale Breakdown:</strong><br>
+            Best for bulk families: Eggs are $7.49 for 30 count ($0.25/egg vs $0.32/egg elsewhere), and 2-pack bread is $5.99. If shopping for one person, check No Frills to prevent perishable waste!
+          `;
+        }
+
+        chatContainer.innerHTML += `
+          <div class="flex gap-2 items-start">
+            <div class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center shrink-0 text-xs font-bold">AI</div>
+            <div class="bg-white border border-gray-200 rounded-2xl rounded-tl-none p-3 max-w-[85%] text-gray-700 shadow-sm leading-relaxed">
+              ${aiReply}
+            </div>
+          </div>
+        `;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        lucide.createIcons();
+      }, 500);
+    }
+
+    function addNoFrillsMealPlan() {
+      cart.push(
+        { id: Date.now() + '1', productId: 'p1', name: 'No Name Large Eggs (No Frills)', price: 2.99, store: 'nofrills', qty: 1, checked: false },
+        { id: Date.now() + '2', productId: 'p16', name: 'Whole Wheat Bread Loaf (No Frills)', price: 1.89, store: 'nofrills', qty: 1, checked: false },
+        { id: Date.now() + '3', productId: 'p4', name: 'Fresh Gala Apples 1 lb (No Frills)', price: 2.49, store: 'nofrills', qty: 1, checked: false },
+        { id: Date.now() + '4', productId: 'p25', name: 'Fresh Baby Spinach (No Frills)', price: 2.79, store: 'nofrills', qty: 1, checked: false },
+        { id: Date.now() + '5', productId: 'p3', name: 'Plain Greek Yogurt 750g (No Frills)', price: 2.99, store: 'nofrills', qty: 1, checked: false }
+      );
+      saveCartState();
+      renderCart();
+      renderProducts();
+      alert("Added $15 budget dinner plan to your Shopping List!");
+      switchTab('cart');
+    }
+
+    // ==========================================
+    // CHECKOUT SYSTEM & ORDER MANAGEMENT
+    // ==========================================
+
+    let checkoutFulfillment = 'pickup'; // 'pickup' | 'delivery'
+    let checkoutPaymentMethod = 'register'; // 'register' | 'gateway'
+
+    function goToCheckout() {
+      if (cart.length === 0) {
+        alert("Your shopping cart is currently empty! Add some grocery items before checking out.");
+        switchTab('products');
+        return;
+      }
+      switchTab('checkout');
+    }
+
+    function setFulfillment(type) {
+      checkoutFulfillment = type;
+      const optPickup = document.getElementById('opt-pickup');
+      const optDelivery = document.getElementById('opt-delivery');
+      const addrGroup = document.getElementById('cust-address-group');
+
+      if (type === 'pickup') {
+        if (optPickup) optPickup.className = "p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center bg-emerald-50 border-emerald-500 text-emerald-800 font-bold";
+        if (optDelivery) optDelivery.className = "p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center bg-white border-gray-200 text-gray-600 font-medium";
+        if (addrGroup) addrGroup.classList.add('hidden');
+      } else {
+        if (optDelivery) optDelivery.className = "p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center bg-emerald-50 border-emerald-500 text-emerald-800 font-bold";
+        if (optPickup) optPickup.className = "p-2.5 rounded-xl border text-center transition flex flex-col items-center justify-center bg-white border-gray-200 text-gray-600 font-medium";
+        if (addrGroup) addrGroup.classList.remove('hidden');
+      }
+
+      updateCheckoutFinancials();
+      lucide.createIcons();
+    }
+
+    function setPaymentMethod(method) {
+      checkoutPaymentMethod = method;
+      const btnText = document.getElementById('place-order-btn-text');
+      if (btnText) {
+        btnText.innerText = (method === 'register') ? 'Confirm Pickup Reservation' : 'Place Demo Order (Card)';
+      }
+    }
+
+    function selectCheckoutStore(storeId) {
+      selectStore(storeId);
+      renderCheckoutStoreSelector();
+      updateCheckoutFinancials();
+    }
+
+    function renderCheckoutStoreSelector() {
+      const container = document.getElementById('checkout-store-selector');
+      if (!container) return;
+      container.innerHTML = STORES.map(s => {
+        const isSelected = s.id === currentStoreId;
+        return `
+          <button type="button" onclick="selectCheckoutStore('${s.id}')" class="p-2 rounded-xl text-center border transition flex flex-col items-center justify-center ${isSelected ? 'bg-emerald-600 text-white border-emerald-600 font-bold shadow-sm' : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'}">
+            <span class="text-[11px] leading-tight truncate w-full">${s.name}</span>
+            <span class="text-[9px] opacity-80 mt-0.5">${isSelected ? 'Active' : 'Choose'}</span>
+          </button>
+        `;
+      }).join('');
+      const disp = document.getElementById('checkout-store-display');
+      if (disp) disp.innerText = getActiveStore().fullName;
+    }
+
+    function renderCheckout() {
+      renderCheckoutStoreSelector();
+      const countEl = document.getElementById('checkout-items-count');
+      const previewEl = document.getElementById('checkout-items-preview');
+
+      const totalItemsCount = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+      if (countEl) countEl.innerText = totalItemsCount;
+
+      if (previewEl) {
+        previewEl.innerHTML = cart.map(item => {
+          const qty = item.qty || 1;
+          const total = (item.price * qty).toFixed(2);
+          return `
+            <div class="py-2 flex items-center justify-between">
+              <div class="min-w-0 flex-1">
+                <span class="font-bold text-gray-800 block truncate">${item.name}</span>
+                <span class="text-[10px] text-gray-400">Qty: ${qty} × $${item.price.toFixed(2)}</span>
+              </div>
+              <span class="font-extrabold text-gray-900 ml-2">$${total}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Prefill customer form with active user details
+      if (currentUser) {
+        const cName = document.getElementById('cust-name');
+        const cPhone = document.getElementById('cust-phone');
+        const cEmail = document.getElementById('cust-email');
+        const cAddr = document.getElementById('cust-address');
+        if (cName && !cName.value) cName.value = currentUser.name || '';
+        if (cPhone && !cPhone.value) cPhone.value = currentUser.phone || '';
+        if (cEmail && !cEmail.value) cEmail.value = currentUser.email || '';
+        if (cAddr && !cAddr.value) cAddr.value = currentUser.address || '';
+      }
+
+      updateCheckoutFinancials();
+      lucide.createIcons();
+    }
+
+    function updateCheckoutFinancials() {
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0);
+      const deliveryFee = (checkoutFulfillment === 'delivery') ? 4.99 : 0.00;
+      const estimatedTax = Number((subtotal * 0.05).toFixed(2)); // 5% sample GST
+      
+      const discount = (subtotal >= 20.00) ? 2.00 : 0.00;
+      const finalTotal = Math.max(0, subtotal + deliveryFee + estimatedTax - discount);
+
+      // Financials labels
+      const subtotalEl = document.getElementById('order-subtotal');
+      if (subtotalEl) subtotalEl.innerText = `$${subtotal.toFixed(2)}`;
+      
+      const fulfillLabel = document.getElementById('order-fulfillment-label');
+      const fulfillFee = document.getElementById('order-fulfillment-fee');
+      if (fulfillLabel && fulfillFee) {
+        if (checkoutFulfillment === 'delivery') {
+          fulfillLabel.innerText = 'Home Delivery Fee:';
+          fulfillFee.innerText = '+$4.99';
+          fulfillFee.className = 'font-bold text-gray-800';
+        } else {
+          fulfillLabel.innerText = 'Store Pickup Fee:';
+          fulfillFee.innerText = 'FREE';
+          fulfillFee.className = 'font-bold text-emerald-600';
+        }
+      }
+
+      const taxEl = document.getElementById('order-tax');
+      if (taxEl) taxEl.innerText = `$${estimatedTax.toFixed(2)}`;
+      
+      const discountRow = document.getElementById('order-discount-row');
+      const discountEl = document.getElementById('order-discount');
+      if (discountRow && discountEl) {
+        if (discount > 0) {
+          discountRow.classList.remove('hidden');
+          discountEl.innerText = `-$${discount.toFixed(2)}`;
+        } else {
+          discountRow.classList.add('hidden');
+        }
+      }
+
+      const totalEl = document.getElementById('order-final-total');
+      if (totalEl) totalEl.innerText = `$${finalTotal.toFixed(2)}`;
+
+      // Budget Check Banner
+      const budgetBox = document.getElementById('checkout-budget-box');
+      const budgetStatus = document.getElementById('checkout-budget-status');
+      const budgetMsg = document.getElementById('checkout-budget-message');
+
+      if (budgetBox && budgetStatus && budgetMsg) {
+        if (finalTotal <= userBudget) {
+          budgetBox.className = "bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 space-y-1.5";
+          budgetStatus.className = "text-emerald-700";
+          budgetStatus.innerText = "Within Budget ✓";
+          budgetMsg.innerHTML = `Your total ($${finalTotal.toFixed(2)}) is well within your budget of $${userBudget.toFixed(2)}. Remaining buffer: <strong>$${(userBudget - finalTotal).toFixed(2)}</strong>.`;
+        } else {
+          budgetBox.className = "bg-amber-50 border border-amber-300 rounded-2xl p-3.5 space-y-1.5";
+          budgetStatus.className = "text-amber-800";
+          budgetStatus.innerText = "Over Budget Warning ⚠️";
+          budgetMsg.innerHTML = `Your order ($${finalTotal.toFixed(2)}) exceeds your budget of $${userBudget.toFixed(2)} by <strong>$${(finalTotal - userBudget).toFixed(2)}</strong>. Consider store pickup or budget alternatives to save.`;
+        }
+      }
+    }
+
+    // Place Order Execution
+    function placeOrder() {
+      if (cart.length === 0) {
+        alert("Your shopping cart is empty.");
+        return;
+      }
+
+      const name = document.getElementById('cust-name').value.trim();
+      const phone = document.getElementById('cust-phone').value.trim();
+      const email = document.getElementById('cust-email').value.trim();
+      const address = document.getElementById('cust-address').value.trim();
+      const timeslot = document.getElementById('checkout-timeslot').value;
+
+      if (!name) {
+        alert("Please enter your name.");
+        document.getElementById('cust-name').focus();
+        return;
+      }
+      if (!phone) {
+        alert("Please enter a contact phone number.");
+        document.getElementById('cust-phone').focus();
+        return;
+      }
+      if (!email) {
+        alert("Please enter your email.");
+        document.getElementById('cust-email').focus();
+        return;
+      }
+      if (checkoutFulfillment === 'delivery' && !address) {
+        alert("Please enter your delivery street address.");
+        document.getElementById('cust-address').focus();
+        return;
+      }
+
+      // Financials calculations
+      const subtotal = cart.reduce((sum, item) => sum + (item.price * (item.qty || 1)), 0);
+      const deliveryFee = (checkoutFulfillment === 'delivery') ? 4.99 : 0.00;
+      const estimatedTax = Number((subtotal * 0.05).toFixed(2));
+      const discount = (subtotal >= 20.00) ? 2.00 : 0.00;
+      const finalTotal = Number((subtotal + deliveryFee + estimatedTax - discount).toFixed(2));
+
+      // Generate unique order ID
+      const orderId = 'SG-' + Math.floor(10000 + Math.random() * 90000);
+      const activeStore = getActiveStore();
+      const isCard = (checkoutPaymentMethod === 'card_demo');
+
+      const newOrder = {
+        orderId: orderId,
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        store: activeStore.fullName,
+        storeId: activeStore.id,
+        items: JSON.parse(JSON.stringify(cart)),
+        subtotal: subtotal,
+        deliveryFee: deliveryFee,
+        tax: estimatedTax,
+        discount: discount,
+        total: finalTotal,
+        fulfillment: checkoutFulfillment,
+        timeslot: timeslot,
+        paymentMethod: isCard ? 'Demo Card Payment (Simulated)' : 'Pay at Store Register on Pickup',
+        customer: { name, phone, email, address: checkoutFulfillment === 'delivery' ? address : 'N/A (Store Pickup)' },
+        status: isCard ? 'Confirmed (Paid Demo)' : 'Reserved: Pending Pickup & Payment'
+      };
+
+      // Save order to current customer's profile
+      orderHistory.unshift(newOrder);
+      persistActiveUserData();
+
+      // Display Confirmation Screen
+      displayConfirmation(newOrder);
+
+      // Clear current shopping cart
+      cart = [];
+      saveCartState();
+      renderCart();
+      renderProducts();
+    }
+
+    function displayConfirmation(order) {
+      const orderIdEl = document.getElementById('conf-order-id');
+      const storeNameEl = document.getElementById('conf-store-name');
+      const fulfillEl = document.getElementById('conf-fulfillment-type');
+      const timeSlotEl = document.getElementById('conf-time-slot');
+      const custNameEl = document.getElementById('conf-customer-name');
+      const totalEl = document.getElementById('conf-total-price');
+
+      if (orderIdEl) orderIdEl.innerText = order.orderId;
+      if (storeNameEl) storeNameEl.innerText = order.store;
+      if (fulfillEl) fulfillEl.innerText = (order.fulfillment === 'delivery') ? 'Home Delivery (+$4.99)' : 'Store Pickup (FREE)';
+      if (timeSlotEl) timeSlotEl.innerText = order.timeslot;
+      if (custNameEl) custNameEl.innerText = order.customer.name;
+      if (totalEl) totalEl.innerText = `$${order.total.toFixed(2)}`;
+
+      const itemsList = document.getElementById('conf-items-list');
+      if (itemsList) {
+        itemsList.innerHTML = order.items.map(item => {
+          const qty = item.qty || 1;
+          return `
+            <div class="py-1 flex justify-between items-center">
+              <span class="truncate max-w-[70%] font-medium">${qty}x ${item.name}</span>
+              <span class="font-bold text-gray-800">$${(item.price * qty).toFixed(2)}</span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      switchTab('confirmation');
+      lucide.createIcons();
+    }
+
+    // Render Order History Screen
+    function renderOrdersHistory() {
+      const container = document.getElementById('orders-history-container');
+      if (!container) return;
+
+      if (!orderHistory || orderHistory.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-gray-400 bg-white rounded-2xl border border-gray-100 p-6 space-y-2">
+            <i data-lucide="receipt" class="w-10 h-10 mx-auto opacity-30"></i>
+            <h4 class="font-bold text-xs text-gray-700">No Orders or Reservations Yet</h4>
+            <p class="text-[11px] text-gray-400">Complete a store pickup reservation to view tracking details here.</p>
+            <button onclick="switchTab('products')" class="mt-2 text-xs bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-xl">Shop Groceries</button>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      container.innerHTML = orderHistory.map(ord => {
+        const totalItemsCount = ord.items.reduce((s, i) => s + (i.qty || 1), 0);
+        return `
+          <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-sm space-y-2.5">
+            <div class="flex justify-between items-start">
+              <div>
+                <span class="font-mono text-xs font-bold text-emerald-800">${ord.orderId}</span>
+                <p class="text-[10px] text-gray-400">${ord.date}</p>
+              </div>
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                ${ord.status}
+              </span>
+            </div>
+
+            <div class="bg-gray-50 rounded-xl p-2.5 space-y-1 text-xs">
+              <div class="flex justify-between text-gray-600 text-[11px]">
+                <span>Store:</span>
+                <span class="font-bold text-gray-800">${ord.store}</span>
+              </div>
+              <div class="flex justify-between text-gray-600 text-[11px]">
+                <span>Fulfillment:</span>
+                <span class="font-medium text-gray-800">${ord.fulfillment === 'delivery' ? 'Home Delivery' : 'Store Pickup'}</span>
+              </div>
+              <div class="flex justify-between text-gray-600 text-[11px]">
+                <span>Payment:</span>
+                <span class="font-medium text-gray-800">${ord.paymentMethod}</span>
+              </div>
+              <div class="flex justify-between text-gray-600 text-[11px]">
+                <span>Items:</span>
+                <span class="font-medium text-gray-800">${totalItemsCount} items</span>
+              </div>
+            </div>
+
+            <!-- Total and Reorder Button -->
+            <div class="pt-2 border-t border-gray-100 flex justify-between items-center">
+              <div>
+                <span class="text-[10px] text-gray-400 uppercase font-semibold">Total Amount</span>
+                <p class="text-sm font-extrabold text-emerald-600">$${ord.total.toFixed(2)}</p>
+              </div>
+              <button onclick="reorderItems('${ord.orderId}')" class="text-xs bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1 transition">
+                <i data-lucide="repeat" class="w-3.5 h-3.5"></i> Reorder
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+      lucide.createIcons();
+    }
+
+    function reorderItems(orderId) {
+      const order = orderHistory.find(o => o.orderId === orderId);
+      if (order && order.items) {
+        order.items.forEach(it => {
+          cart.push({
+            id: Date.now() + Math.random().toString(),
+            productId: it.productId || 'reorder',
+            name: it.name,
+            price: it.price,
+            pricePendingFeed: it.pricePendingFeed || false,
+            qty: it.qty || 1,
+            store: it.store || currentStoreId,
+            checked: false,
+            hasAlt: !!it.hasAlt,
+            alt: it.alt || null
+          });
+        });
+        saveCartState();
+        renderCart();
+        renderProducts();
+        switchTab('cart');
+      }
+    }
+
+    function clearOrdersHistory() {
+      if (confirm("Are you sure you want to clear your order history?")) {
+        orderHistory = [];
+        persistActiveUserData();
+        renderOrdersHistory();
+      }
+    }
+
+    // ==========================================
+    // AI MULTI-STORE LIST COMPARISON & RECOMMENDATION
+    // ==========================================
+
+    let splitShoppingPlan = null;
+
+    function renderMultiStoreComparison() {
+      try {
+        const emptyEl = document.getElementById('multi-compare-empty');
+        const contentEl = document.getElementById('multi-compare-content');
+
+        if (!cart || cart.length === 0) {
+          if (emptyEl) emptyEl.classList.remove('hidden');
+          if (contentEl) contentEl.classList.add('hidden');
+          lucide.createIcons();
+          return;
+        }
+
+        if (emptyEl) emptyEl.classList.add('hidden');
+        if (contentEl) contentEl.classList.remove('hidden');
+
+
+        const storeTotals = {};
+        const storeAvailability = {};
+        const storeNotes = {};
+
+        STORES.forEach(s => {
+          storeTotals[s.id] = 0;
+          storeAvailability[s.id] = { inStock: 0, outOfStock: 0 };
+          storeNotes[s.id] = [];
+        });
+
+        // 1. Calculate Complete Grocery List Totals across all 4 stores
+        cart.forEach(item => {
+          const qty = item.qty || 1;
+          const prod = (typeof MASTER_PRODUCTS !== 'undefined' && Array.isArray(MASTER_PRODUCTS))
+            ? (MASTER_PRODUCTS.find(p => p.id === item.productId || p.name === item.name) || null)
+            : null;
+
+          const defaultStoreData = {
+            walmart: { price: item.price || 2.99, available: true, unit: '1 unit' },
+            freshco: { price: Number(((item.price || 2.99) * 0.96).toFixed(2)), available: true, unit: '1 unit' },
+            nofrills: { price: Number(((item.price || 2.99) * 0.91).toFixed(2)), available: true, unit: '1 unit' },
+            costco: { price: Number(((item.price || 2.99) * 2.2).toFixed(2)), available: true, unit: 'Bulk pack' }
+          };
+
+          const effectiveProd = prod || {
+            name: item.name,
+            unit: '1 unit',
+            storeData: defaultStoreData
+          };
+
+          STORES.forEach(s => {
+            let sData = (effectiveProd.storeData && effectiveProd.storeData[s.id])
+              ? effectiveProd.storeData[s.id]
+              : (defaultStoreData[s.id] || { price: item.price || 2.99, available: true, unit: '1 unit' });
+            
+            // Fair Unit Price Normalization for Costco bulk packaging
+            let effectivePrice = sData.price;
+            if (s.id === 'costco' && sData.unit && sData.unit.toLowerCase().includes('bulk')) {
+              effectivePrice = Number((sData.price / 2.25).toFixed(2));
+            }
+
+            // Availability check
+            let finalItemCost = effectivePrice * qty;
+            if (!sData.available) {
+              storeAvailability[s.id].outOfStock++;
+              if (effectiveProd.alternative && effectiveProd.alternative.priceByStore && effectiveProd.alternative.priceByStore[s.id]) {
+                const altPrice = effectiveProd.alternative.priceByStore[s.id];
+                finalItemCost = altPrice * qty;
+                storeNotes[s.id].push(`${effectiveProd.name} is out of stock at ${s.name}; swapped with alternative ${effectiveProd.alternative.name} ($${altPrice.toFixed(2)})`);
+              } else {
+                storeNotes[s.id].push(`${effectiveProd.name} is out of stock at ${s.name}`);
+              }
+            } else {
+              storeAvailability[s.id].inStock++;
+            }
+
+            storeTotals[s.id] += finalItemCost;
+          });
+        });
+
+        // 2. Identify Cheapest Store and Calculate Potential Savings
+        let cheapestStoreId = 'nofrills';
+        let lowestTotal = Infinity;
+        let highestTotal = 0;
+
+        STORES.forEach(s => {
+          const tot = storeTotals[s.id];
+          if (tot < lowestTotal) {
+            lowestTotal = tot;
+            cheapestStoreId = s.id;
+          }
+          if (tot > highestTotal) {
+            highestTotal = tot;
+          }
+        });
+
+        const cheapestStore = STORES.find(s => s.id === cheapestStoreId) || STORES[0];
+        const maxSavings = Math.max(0, highestTotal - lowestTotal);
+
+        // Update AI Recommendation Banner
+        const recTitleEl = document.getElementById('ai-rec-title');
+        const recDescEl = document.getElementById('ai-rec-desc');
+        const recSavingsEl = document.getElementById('ai-rec-savings');
+
+        if (recTitleEl) recTitleEl.innerText = `${cheapestStore.fullName} is your cheapest single-store option!`;
+        if (recDescEl) {
+          recDescEl.innerHTML = `
+            Buying your entire grocery list of <strong>${cart.length} items</strong> at <strong>${cheapestStore.name}</strong> costs an estimated <strong>$${lowestTotal.toFixed(2)}</strong>. You could save up to <strong>$${maxSavings.toFixed(2)}</strong> compared to the most expensive store option.
+          `;
+        }
+        if (recSavingsEl) recSavingsEl.innerText = `Save up to $${maxSavings.toFixed(2)}`;
+
+        // 3. Render Side-by-Side Comparison Table
+        const tableBody = document.getElementById('multi-compare-table-body');
+        if (tableBody) {
+          tableBody.innerHTML = STORES.map(s => {
+            const tot = storeTotals[s.id];
+            const isCheapest = (s.id === cheapestStoreId);
+            const diffFromMax = Math.max(0, highestTotal - tot);
+            const isCurrentActive = (s.id === currentStoreId);
+
+            return `
+              <tr class="py-2.5 ${isCheapest ? 'bg-emerald-50/70 font-semibold' : ''}">
+                <td class="py-2.5">
+                  <div class="flex items-center gap-2">
+                    <span class="w-6 h-6 rounded-lg ${s.badgeBg} text-white font-bold text-[10px] flex items-center justify-center">${s.logoText}</span>
+                    <div>
+                      <span class="text-gray-900 block text-xs font-semibold">${s.name}</span>
+                      ${isCheapest ? '<span class="text-[9px] bg-emerald-600 text-white font-extrabold px-1 rounded">CHEAPEST OPTION</span>' : ''}
+                      ${isCurrentActive ? '<span class="text-[9px] text-blue-600 font-bold block">Active in Cart</span>' : ''}
+                    </div>
+                  </div>
+                </td>
+                <td class="py-2.5 text-right font-extrabold ${isCheapest ? 'text-emerald-700 text-sm' : 'text-gray-800 text-xs'}">
+                  $${tot.toFixed(2)}
+                </td>
+                <td class="py-2.5 text-right font-bold text-xs ${diffFromMax > 0 ? 'text-emerald-600' : 'text-gray-400'}">
+                  ${diffFromMax > 0 ? `-$${diffFromMax.toFixed(2)}` : 'Baseline'}
+                </td>
+                <td class="py-2.5 text-center">
+                  <button onclick="applyStoreToList('${s.id}')" class="text-[10px] ${isCheapest ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'} font-bold px-2 py-1 rounded-lg transition shadow-sm">
+                    Shop ${s.name}
+                  </button>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        // 4. Calculate AI Optimal Split Shopping Plan
+        calculateSplitShoppingPlan();
+
+        // 5. Render Equivalency & Availability Notes
+        const notesContainer = document.getElementById('equivalency-notes-container');
+        if (notesContainer) {
+          const allNotes = [];
+          allNotes.push(`<strong>Costco Bulk Package Fairness:</strong> Bulk packages are normalized by equivalent single-unit rates ($/lb or $/unit) so everyday comparison remains fair.`);
+          
+          STORES.forEach(s => {
+            if (storeNotes[s.id] && storeNotes[s.id].length > 0) {
+              storeNotes[s.id].forEach(n => {
+                allNotes.push(`<strong>${s.name} Stock Note:</strong> ${n}`);
+              });
+            }
+          });
+
+          notesContainer.innerHTML = allNotes.map(note => `
+            <div class="p-2 bg-gray-50 rounded-xl border border-gray-100 flex items-start gap-2">
+              <i data-lucide="check" class="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5"></i>
+              <span>${note}</span>
+            </div>
+          `).join('');
+        }
+
+        lucide.createIcons();
+      } catch (err) {
+        console.error("MultiStore Comparison error:", err);
+      }
+    }
+
+    // Calculate Split Shopping Plan across multiple stores
+    function calculateSplitShoppingPlan() {
+      const summaryBox = document.getElementById('split-shopping-summary');
+      const breakdownEl = document.getElementById('split-items-breakdown');
+
+      const splitByStore = {};
+      STORES.forEach(s => {
+        splitByStore[s.id] = { store: s, items: [], total: 0 };
+      });
+
+      let splitItemsSubtotal = 0;
+
+      cart.forEach(item => {
+        const qty = item.qty || 1;
+        const prod = (typeof MASTER_PRODUCTS !== 'undefined' && Array.isArray(MASTER_PRODUCTS))
+          ? (MASTER_PRODUCTS.find(p => p.id === item.productId || p.name === item.name) || null)
+          : null;
+
+        let bestStoreId = currentStoreId;
+        let lowestItemPrice = Infinity;
+        let bestUnit = 'unit';
+
+        STORES.forEach(s => {
+          let price = item.price || 2.99;
+          let unit = 'unit';
+          let avail = true;
+
+          if (prod && prod.storeData && prod.storeData[s.id]) {
+            price = prod.storeData[s.id].price;
+            unit = prod.storeData[s.id].unit || 'unit';
+            avail = prod.storeData[s.id].available !== false;
+
+            // Unit rate for Costco bulk
+            if (s.id === 'costco' && unit.toLowerCase().includes('bulk')) {
+              price = Number((price / 2.25).toFixed(2));
+            }
+          }
+
+          if (avail && price < lowestItemPrice) {
+            lowestItemPrice = price;
+            bestStoreId = s.id;
+            bestUnit = unit;
+          }
+        });
+
+        if (lowestItemPrice === Infinity) {
+          lowestItemPrice = item.price || 2.99;
+          bestStoreId = currentStoreId;
+        }
+
+        const itemCost = lowestItemPrice * qty;
+        splitByStore[bestStoreId].items.push({
+          id: item.id,
+          productId: item.productId,
+          name: item.name,
+          price: lowestItemPrice,
+          qty: qty,
+          unit: bestUnit
+        });
+        splitByStore[bestStoreId].total += itemCost;
+        splitItemsSubtotal += itemCost;
+      });
+
+      // Filter active stores in split plan (stores where at least 1 item is bought)
+      const activeSplitStores = Object.values(splitByStore).filter(st => st.items.length > 0);
+      
+      // Travel / Transit expense estimate ($2.50 local transit per additional store)
+      const additionalStores = Math.max(0, activeSplitStores.length - 1);
+      const estimatedTransitCost = additionalStores * 2.50;
+      const netSplitTotal = splitItemsSubtotal + estimatedTransitCost;
+
+      splitShoppingPlan = {
+        stores: activeSplitStores,
+        itemsSubtotal: splitItemsSubtotal,
+        transitCost: estimatedTransitCost,
+        netTotal: netSplitTotal
+      };
+
+      // Summary Box
+      if (summaryBox) {
+        summaryBox.innerHTML = `
+          <div class="flex justify-between items-center text-xs">
+            <span>Items Combined Subtotal:</span>
+            <span class="font-extrabold text-purple-950">$${splitItemsSubtotal.toFixed(2)}</span>
+          </div>
+          <div class="flex justify-between items-center text-[11px] text-purple-700">
+            <span>Stores to Visit (${activeSplitStores.length}):</span>
+            <span class="font-bold">${activeSplitStores.map(s => s.store.name).join(' + ')}</span>
+          </div>
+          <div class="flex justify-between items-center text-[11px] text-purple-700">
+            <span>Est. Local Travel / Transit Cost:</span>
+            <span class="font-bold">+$${estimatedTransitCost.toFixed(2)} (${additionalStores} additional store${additionalStores > 1 ? 's' : ''})</span>
+          </div>
+          <div class="pt-1.5 border-t border-purple-200 flex justify-between items-baseline font-bold text-xs">
+            <span class="text-purple-900">Net Split Total:</span>
+            <span class="text-sm font-extrabold text-purple-700">$${netSplitTotal.toFixed(2)}</span>
+          </div>
+        `;
+      }
+
+      // Breakdown Cards
+      if (breakdownEl) {
+        breakdownEl.innerHTML = activeSplitStores.map(st => `
+          <div class="p-2.5 rounded-xl border border-gray-200 bg-gray-50/70 space-y-1.5">
+            <div class="flex justify-between items-center font-bold text-gray-800">
+              <span class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full ${st.store.dotColor}"></span>
+                ${st.store.name} (${st.items.length} item${st.items.length > 1 ? 's' : ''})
+              </span>
+              <span class="text-emerald-700 font-extrabold">$${st.total.toFixed(2)}</span>
+            </div>
+            <div class="space-y-0.5 text-[11px] text-gray-600 pl-3.5">
+              ${st.items.map(it => `
+                <div class="flex justify-between">
+                  <span>${it.qty}x ${it.name}</span>
+                  <span class="font-medium text-gray-800">$${(it.price * it.qty).toFixed(2)}</span>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Apply entire list to chosen single store
+    function applyStoreToList(storeId) {
+      selectStore(storeId);
+      cart.forEach(item => {
+        const prod = (typeof MASTER_PRODUCTS !== 'undefined' && Array.isArray(MASTER_PRODUCTS))
+          ? (MASTER_PRODUCTS.find(p => p.id === item.productId || p.name === item.name) || null)
+          : null;
+        if (prod && prod.storeData && prod.storeData[storeId]) {
+          item.price = prod.storeData[storeId].price;
+          item.store = storeId;
+          item.name = `${prod.name} (${STORES.find(s=>s.id===storeId).name})`;
+        }
+      });
+      saveCartState();
+      renderCart();
+      renderProducts();
+      alert(`Updated all list items to ${STORES.find(s=>s.id===storeId).fullName}!`);
+      switchTab('cart');
+    }
+
+    // Apply Split Shopping Plan into current active cart
+    function applySplitShoppingToCart() {
+      if (!splitShoppingPlan || !splitShoppingPlan.stores) return;
+
+      const newCart = [];
+      splitShoppingPlan.stores.forEach(st => {
+        st.items.forEach(it => {
+          newCart.push({
+            id: Date.now() + Math.random().toString(),
+            productId: it.productId,
+            name: `${it.name} (${st.store.name})`,
+            price: it.price,
+            pricePendingFeed: false,
+            qty: it.qty,
+            store: st.store.id,
+            checked: false,
+            hasAlt: false
+          });
+        });
+      });
+
+      cart = newCart;
+      saveCartState();
+      renderCart();
+      renderProducts();
+      alert("Successfully applied the Optimal Split-Shopping Plan to your Shopping List!");
+      switchTab('cart');
+    }
+  </script>
+</body>
+</html>
